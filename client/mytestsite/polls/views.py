@@ -7,5 +7,6 @@ from django.shortcuts import render_to_response
 from django.shortcuts import render
 def home(request):
     return render(request,'polls/home.html')
-
+def lookdata(request):
+    return render(request,'polls/lookdata.html',{'content':['testaaa','sdfdasfsaf']})
 
