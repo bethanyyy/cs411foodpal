@@ -11,3 +11,5 @@ local_settings.py
 .venv
 venv/
 ENV/
+
+*.DS_Store
