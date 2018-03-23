@@ -25,7 +25,7 @@ SECRET_KEY = '&80a@uls_9ybj4rt8*zhp=e!^7_8&b1b)e6(udc849v=l=*jbb'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['foodpal.pythonanywhere.com']
 
 
 # Application definition
