@@ -1,0 +1,59 @@
+{% extends "polls/header.html"%}
+{% block content %}
+
+<!-- Heading Row -->
+<div class="row my-4">
+    <div class="col-lg-8">
+        <img class="img-fluid rounded" src="{{ restaurantDetails.image }}" alt="">
+    </div>
+    <!-- /.col-lg-8 -->
+    
+    <div class="col-lg-4">
+        <h1>{{ restaurantDetails.name }}</h1>
+        <ul>
+            <li>Type: {{ restaurantDetails.type }}</li>
+            <li>Location: {{ restaruantDetails.location }}</li>
+            <li>Price Range: {{ restaurantDetails.priceRange }}</li>
+            <li>Hours: {{ restaurantDetails.hour }}</li>
+        </ul>
+    </div>
+    <!-- /.col-md-4 -->
+
+</div>
+<!-- /.row -->
+
+<!-- Content Row -->
+<form class="row" action="{% url 'order' %}" method="post">{% csrf_token %}
+    {% for food in restaurantDetails.menu %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h2 class="card-title">{{ food.foodName }}</h2>
+                <ul class="card-text">
+                    <li>Price: ${{ food.price }}</li>
+                    <li>Description: {{ food.description }}</li>
+                </ul>
+            </div>
+            <div class="input-group">
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-danger btn-number"  data-type="minus" data-field="{{ food.id }}">
+                        <span class="glyphicon glyphicon-minus">-</span>
+                    </button>
+                </span>
+                <input type="text" name="{{ food.id }}" class="form-control input-number" value="0" min="0" max="10">
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-success btn-number" data-type="plus" data-field="{{ food.id }}">
+                        <span class="glyphicon glyphicon-plus">+</span>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <!-- /.col-md-4 -->
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary btn-lg btn-block text-white bg-secondary my-4 text-center" id="orderBtn">Order</button>
+</form>
+<!-- /.row -->
+
+{% endblock %}
