@@ -8,7 +8,7 @@
     <table class="table table-striped custab">
     <thead>
         <tr>
-            <th>id</th>
+            <th>Food Name</th>
             <th>Price</th>
             <th>Quantity</th>
             <th class="text-center">Action</th>
@@ -16,7 +16,7 @@
     </thead>
         {% for item in orderItems %}
         <tr>
-            <td>{{ item.id }}</td>
+            <td>{{ item.foodName }}</td>
             <td>{{ item.price }}</td>
             <td>
                 <div class="input-group">
