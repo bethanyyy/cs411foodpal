@@ -29,16 +29,23 @@ class FoodItem(models.Model):
     class Meta:
         unique_together = (("foodName", "restaurantName", "restaurantLocation"),)
 
+    def __str__(self):
+        return self.foodName + ' - ' + str(self.price) + ' - ' + self.restaurantName
+
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=30)
     type = models.CharField(max_length=30)
     location = models.CharField(max_length=100)
     priceRange = models.CharField(max_length=30)
-    hour = models.DateTimeField()
+    hour = models.CharField(max_length=30)
+    image = models.CharField(max_length=1000, null=True)
 
     class Meta:
         unique_together = (("name", "location"),)
+
+    def __str__(self):
+        return self.name + ' - ' + self.type
 
 
 class Include(models.Model):
