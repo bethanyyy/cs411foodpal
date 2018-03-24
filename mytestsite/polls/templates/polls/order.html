@@ -1,0 +1,42 @@
+{% extends "polls/header.html"%}
+{% block content %}
+
+<h1 class="my-4">Your Current Order
+</h1>
+
+<div class="row custyle">
+    <table class="table table-striped custab">
+    <thead>
+        <tr>
+            <th>Food Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th class="text-center">Action</th>
+        </tr>
+    </thead>
+        {% for item in orderItems %}
+        <tr>
+            <td>{{ item.foodName }}</td>
+            <td>{{ item.price }}</td>
+            <td>
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-danger btn-number"  data-type="minus" data-field="{{ item.id }}">
+                            <span class="glyphicon glyphicon-minus">-</span>
+                        </button>
+                    </span>
+                    <input type="text" name="{{ item.id }}" class="form-control input-number" value="{{ item.quantity }}" min="0" max="10">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-success btn-number" data-type="plus" data-field="{{ item.id }}">
+                            <span class="glyphicon glyphicon-plus">+</span>
+                        </button>
+                    </span>
+                </div>
+            </td>
+            <td class="text-center"><a class='btn btn-info btn-xs' href="#"><span class="glyphicon glyphicon-edit"></span> Update</a> <a href="#" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span> Delete</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

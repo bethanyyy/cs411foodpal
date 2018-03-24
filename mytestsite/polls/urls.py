@@ -1,13 +1,10 @@
-
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.home, name='home'),
-    url(r'^lookdata/',views.lookdata,name='lookdata'),
-    url(r'^delete',views.delete, name='delete'),
-    url(r'^update',views.update, name='update'),
-    url(r'^query',views.query, name='query'),
-    url(r'^insert',views.insert, name='insert'),
+    path('', views.home, name='home'),
+    path('restaurants/', views.restaurants, name='restaurants'),
+    path('restaurantDetails/<int:id>/', views.restaurantDetails, name='restaurantDetails'),
+    path('order/', views.order, name='order')
 ]
