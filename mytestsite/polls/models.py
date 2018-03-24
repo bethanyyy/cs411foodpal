@@ -53,6 +53,7 @@ class Include(models.Model):
     time = models.DateTimeField()
     orderLocation = models.CharField(max_length=100)
     userID = models.CharField(max_length=10)
+    quantity = models.IntegerField(default=1)
 
     class Meta:
         unique_together = (("foodName", "restaurantID", "time", "orderLocation", "userID"),)

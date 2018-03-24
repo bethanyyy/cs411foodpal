@@ -35,7 +35,8 @@ def order(request):
             foodName = foodItem.foodName
             foodPrice = foodItem.price
             restaurantID = foodItem.restaurant.id
-            data.append({'foodName':foodName, 'quantity':request.POST[key], 'price':foodPrice})
-            include = Include(foodName=foodName, restaurantID=restaurantID, time=orderTime, orderLocation=orderLocation, userID=orderUser)
+            foodQuantity = request.POST[key]
+            data.append({'foodName':foodName, 'quantity':foodQuantity, 'price':foodPrice})
+            include = Include(foodName=foodName, restaurantID=restaurantID, time=orderTime, orderLocation=orderLocation, userID=orderUser, quantity=foodQuantity)
             include.save()
     return render(request, 'polls/order.html', {'orderItems':data})
