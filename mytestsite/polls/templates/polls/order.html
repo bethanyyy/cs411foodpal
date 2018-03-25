@@ -15,28 +15,70 @@
         </tr>
     </thead>
         {% for item in orderItems %}
-        <tr>
+        <tr id="row_{{ item.includeId }}">
             <td>{{ item.foodName }}</td>
             <td>{{ item.price }}</td>
             <td>
                 <div class="input-group">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-danger btn-number"  data-type="minus" data-field="{{ item.id }}">
+                        <button type="button" class="btn btn-danger btn-number"  data-type="minus" data-field="{{ item.includeId }}">
                             <span class="glyphicon glyphicon-minus">-</span>
                         </button>
                     </span>
-                    <input type="text" name="{{ item.id }}" class="form-control input-number" value="{{ item.quantity }}" min="0" max="10">
+                    <input type="text" name="{{ item.includeId }}" class="form-control input-number" value="{{ item.quantity }}" min="0" max="10">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-success btn-number" data-type="plus" data-field="{{ item.id }}">
+                        <button type="button" class="btn btn-success btn-number" data-type="plus" data-field="{{ item.includeId }}">
                             <span class="glyphicon glyphicon-plus">+</span>
                         </button>
                     </span>
                 </div>
             </td>
-            <td class="text-center"><a class='btn btn-info btn-xs' href="#"><span class="glyphicon glyphicon-edit"></span> Update</a> <a href="#" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span> Delete</a></td>
+            <td class="text-center">
+                <button class="btn btn-info btn-xs updateBtn"><span class="glyphicon glyphicon-edit"></span> Update</button> 
+                <button class="btn btn-danger btn-xs deleteBtn"><span class="glyphicon glyphicon-remove"></span> Delete</button>
+            </td>
         </tr>
         {% endfor %}
     </table>
 </div>
 
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(".updateBtn").click(function () {
+    var cell = $(this).parent().parent().find("input")
+    $.ajax({
+        type:"POST",
+        url:"{% url 'updateOrder' %}",
+        data: {
+            'includeId':cell.attr("name"),
+            'quantity':cell.val(),
+            'csrfmiddlewaretoken':'{{ csrf_token }}'
+        },
+        success: function(data){
+            alert(data) 
+        }
+    });
+    return false;
+});
+    
+$(".deleteBtn").click(function () {
+    var cell = $(this).closest('tr').find("input")
+    var row_id = "#row_"+cell.attr("name")
+    $.ajax({
+        type:"POST",
+        url:"{% url 'deleteOrder' %}",
+        data: {
+            'includeId':cell.attr("name"),
+            'csrfmiddlewaretoken':'{{ csrf_token }}'
+        },
+        success: function(data){
+            alert(data)
+            $(row_id).hide();
+        }
+    });
+    return false;
+})
+</script>
 {% endblock %}
