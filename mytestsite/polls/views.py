@@ -35,7 +35,7 @@ def order(request):
             foodName = foodItem.foodName
             foodPrice = foodItem.price
             restaurantID = foodItem.restaurant.id
-            foodQuantity = request.POST[key]
+            foodQuantity = int(request.POST[key])
             data.append({'foodName':foodName, 'quantity':foodQuantity, 'price':foodPrice})
             include = Include(foodName=foodName, restaurantID=restaurantID, time=orderTime, orderLocation=orderLocation, userID=orderUser, quantity=foodQuantity)
             include.save()
