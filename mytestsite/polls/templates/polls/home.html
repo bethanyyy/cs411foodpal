@@ -1,6 +1,13 @@
 {% extends "polls/header.html"%}
 
 {% block content %}
-{% include "polls/includes/htmlsnippet.html"%}
+
+{% if user.is_authenticated %}
+    <p>Hi {{ user.username }}!</p>
+{% else %}
+    <p>You are not logged in</p>
+{% endif %}
+
 <p><a href="{% url 'restaurants' %}">Show list of restaurants</a></p>
+
 {% endblock %}

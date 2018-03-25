@@ -1,0 +1,26 @@
+{% extends "polls/header.html"%}
+{% block content %}
+
+<h1 class="my-4">Your Order History
+</h1>
+
+<div class="row custyle">
+    <table class="table table-striped custab">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Location</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+        {% for item in orders %}
+        <tr id="row_{{ item.id }}">
+            <td>{{ item.id }}</td>
+            <td>{{ item.location }}</td>
+            <td>{{ item.time }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

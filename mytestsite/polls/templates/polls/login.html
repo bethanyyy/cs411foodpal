@@ -1,0 +1,16 @@
+{% extends "polls/header.html"%}
+
+{% block content %}
+
+<div class="login-form">
+    <form method="post">
+        <h2 class="text-center">Log in</h2>       
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        </div>      
+    </form>
+    <p class="text-center"><a href="{% url 'signup' %}">Sign up</a></p>
+</div>
+{% endblock %}
