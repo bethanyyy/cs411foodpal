@@ -25,7 +25,7 @@ def order(request):
     data = []
     orderLocation = "blahblah street"
     orderTime = timezone.now()
-    orderUser = 1
+    orderUser = '1'
     order = Order(location=orderLocation, time=orderTime, userID=orderUser, sharedOrderID=0)
     order.save()
     for key in request.POST:
