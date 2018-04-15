@@ -5768,7 +5768,12 @@ button.close {
   left: 1px;
   border-right-color: #fff;
 }
-
+.link
+{
+   color:aqua;
+   text-decoration: none;
+   background-color: none;
+}
 .bs-popover-bottom, .bs-popover-auto[x-placement^="bottom"] {
   margin-top: 0.5rem;
 }

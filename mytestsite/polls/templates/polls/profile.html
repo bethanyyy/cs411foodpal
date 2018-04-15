@@ -1,0 +1,57 @@
+{% extends "polls/header.html"%}
+{% block content %}
+{% load staticfiles %}
+<!-- <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css"> -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<link rel="stylesheet" href="{%static 'polls/font-awesome-4.7.0/css/font-awesome.min.css'%}">
+ <link rel="stylesheet" href="../../">
+
+
+<div class="container">
+    <div class="row profile">
+		<div class="col-md-3">
+				<!-- SIDEBAR MENU -->
+					<div class=".bg-white">
+							<p style="font-size:2vw"color="black">Hello,{{user.username}}!</p>
+							<!--<a href="#" class="media tm-media tm-recommended-item">-->
+								<!--<img src="{%static 'polls/img/tn-img-01.jpg'%}" alt="Image">-->
+								<!--<div class="media-body tm-media-body tm-bg-gray">-->
+									<!--<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Europe</h4>-->
+								<!--</div>-->
+							<!--</a>-->
+							<!--<a href="#" class="media tm-media tm-recommended-item">-->
+								<!--<img src="{%static 'polls/img/tn-img-02.jpg'%}" alt="Image">-->
+								<!--<div class="media-body tm-media-body tm-bg-gray">-->
+									<!--<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Asia</h4>-->
+								<!--</div>-->
+							<!--</a>-->
+							<a href="http://127.0.0.1:8000/order/" class="media tm-media tm-recommended-item">
+								<img src="{%static 'polls/img/food_current_order.jpg'%}" alt="Image">
+								<div class="media-body tm-media-body tm-bg-gray">
+									<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Current Order </h4>
+								</div>
+							</a>
+							<a href="http://127.0.0.1:8000/orderHistory/" class="media tm-media tm-recommended-item">
+								<img src="{%static 'polls/img/food_order_history.jpg'%}" alt="Image">
+								<div class="media-body tm-media-body tm-bg-gray">
+									<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Order History.</h4>
+								</div>
+							</a>
+					</div>
+				<!-- END MENU -->
+			</div>
+		</div>
+		<div class="col-md-3  col-lg-4 col-xl-4">
+            <div class="profile-content">
+				some stuff
+            </div>
+		</div>
+	</div>
+</div>
+<center>
+<strong>Powered by <a href="http://j.mp/metronictheme" target="_blank">KeenThemes</a></strong>
+</center>
+<br>
+<br>
+{% endblock %}

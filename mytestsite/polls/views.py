@@ -12,9 +12,13 @@ from .forms import SignUpForm
 
 
 def home(request):
-    return render(request,'polls/home.html')
+    return render(request,'polls/index.html')
 
-
+def profile(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    orderUser = request.user
+    return render(request, 'polls/profile.html',{'user':orderUser})
 def restaurants(request):
     allRestaurant = Restaurant.objects.all()
     return render(request, 'polls/restaurants.html', {'restaurants': allRestaurant})
@@ -25,6 +29,31 @@ def restaurantDetails(request, id):
     restaurantInfo['menu'] = restaurantDetail
     return render(request,'polls/restaurantDetails.html', {'restaurantDetails': restaurantInfo})
 
+
+def finishorder(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    data = []
+    orderLocation = "blahblah street"
+    orderTime = timezone.now()
+    orderUser = request.user
+    order = Order(location=orderLocation, time=orderTime, userID=orderUser.id, sharedOrderID=0)
+    order.save()
+    for key in request.POST:
+        if key != "csrfmiddlewaretoken" and request.POST[key] != '0':
+            # should look up food items according to the ids here
+            foodItem = FoodItem.objects.get(pk=key)
+            foodName = foodItem.foodName
+            foodPrice = foodItem.price
+            restaurantID = foodItem.restaurant.id
+            foodQuantity = int(request.POST[key])
+            include = Include(foodName=foodName, restaurantID=restaurantID, time=orderTime,
+                              orderLocation=orderLocation, userID=orderUser.id, quantity=foodQuantity)
+            include.save()
+            data.append(
+                {'foodName': foodName, 'quantity': request.POST[key], 'price': foodPrice, 'includeId': include.id})
+    return render(request, 'polls/finishorder.html', {'orders': data})
 def order(request):
     if not request.user.is_authenticated:
         return redirect('login')

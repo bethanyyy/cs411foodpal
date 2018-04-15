@@ -13,6 +13,9 @@ urlpatterns = [
     path('login/', auth_views.login, {'template_name': 'polls/login.html'}, name='login'),
     path('logout/', auth_views.logout, name='logout'),
     path('signup/', views.signup, name='signup'),
-    path('orderHistory/', views.orderHistory, name='orderHistory')
+    path('orderHistory/', views.orderHistory, name='orderHistory'),
+    path('profile/',views.profile,name='profile'),
+    path('finishorder/', views.finishorder, name='finishorder')
+
     #path('orderDetail/', views.orderDetail, name='orderDetail')
 ]

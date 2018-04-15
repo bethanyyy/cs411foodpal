@@ -34,7 +34,7 @@
                 </div>
             </td>
             <td class="text-center">
-                <button class="btn btn-info btn-xs updateBtn"><span class="glyphicon glyphicon-edit"></span> Update</button> 
+                <button class="btn btn-info btn-xs updateBtn"><span class="glyphicon glyphicon-edit"></span> Update</button>
                 <button class="btn btn-danger btn-xs deleteBtn"><span class="glyphicon glyphicon-remove"></span> Delete</button>
             </td>
         </tr>
@@ -57,12 +57,12 @@ $(".updateBtn").click(function () {
             'csrfmiddlewaretoken':'{{ csrf_token }}'
         },
         success: function(data){
-            alert(data) 
+            alert(data)
         }
     });
     return false;
 });
-    
+
 $(".deleteBtn").click(function () {
     var cell = $(this).closest('tr').find("input")
     var row_id = "#row_"+cell.attr("name")

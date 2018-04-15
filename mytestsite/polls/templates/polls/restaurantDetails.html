@@ -23,7 +23,7 @@
 <!-- /.row -->
 
 <!-- Content Row -->
-<form class="row" action="{% url 'order' %}" method="post">{% csrf_token %}
+<form class="row" action="{% url 'finishorder' %}" method="post">{% csrf_token %}
     {% for food in restaurantDetails.menu %}
     <div class="col-md-4 mb-4">
         <div class="card h-100">
@@ -52,7 +52,7 @@
     <!-- /.col-md-4 -->
     {% endfor %}
 
-    <button type="submit" class="btn btn-primary btn-lg btn-block text-white bg-secondary my-4 text-center" id="orderBtn">Order</button>
+    <button type="submit" class="btn btn-primary btn-lg btn-block text-white bg-red my-4 text-center" id="orderBtn">Order</button>
 </form>
 <!-- /.row -->
 
