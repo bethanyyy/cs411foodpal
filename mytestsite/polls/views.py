@@ -79,8 +79,9 @@ def order(request):
 
     current_order= [] #here is the current order just like "data" ( with food ... stuff on the above)
     stuff_1=[] #here is the shared order , should with shared user  name , (could be yourself if no one is shared )
-    return render(request, 'polls/order.html', {'orders': data,'restaurant':a,'user':orderUser,'order':current_order,'sharedorder':stuff_1})
+    # {'orders': data, 'restaurant': a, 'user': orderUser, 'order': current_order, 'sharedorder': stuff_1})
 
+    return render(request, 'polls/order.html')
 def updateOrder(request):
     if not request.user.is_authenticated:
         return redirect('login')
