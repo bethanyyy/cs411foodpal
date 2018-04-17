@@ -1,84 +1,185 @@
 {% extends "polls/header.html"%}
 {% block content %}
+<p style="font-size:1vw" color="black" >Finished, your order will be reviewed and shared with other users!</p>
+   <meta charset="utf-8">
 
-<h1 class="my-4">Your Current Order
-</h1>
+    <style>
+    .invoice-box {
+        max-width: 800px;
+        margin: auto;
+        padding: 30px;
+        border: 1px solid #eee;
+        box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+        font-size: 16px;
+        line-height: 24px;
+        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+        color: #555;
+    }
+    .invoice-box table {
+        width: 100%;
+        line-height: inherit;
+        text-align: left;
+    }
+    .invoice-box table td {
+        padding: 5px;
+        vertical-align: top;
+    }
+    .invoice-box table tr td:nth-child(2) {
+        text-align: right;
+    }
+    .invoice-box table tr.top table td {
+        padding-bottom: 20px;
+    }
+    .invoice-box table tr.top table td.title {
+        font-size: 45px;
+        line-height: 45px;
+        color: #333;
+    }
+    .invoice-box table tr.information table td {
+        padding-bottom: 40px;
+    }
+    .invoice-box table tr.heading td {
+        background: #eee;
+        border-bottom: 1px solid #ddd;
+        font-weight: bold;
+    }
+    .invoice-box table tr.details td {
+        padding-bottom: 20px;
+    }
+    .invoice-box table tr.item td{
+        border-bottom: 1px solid #eee;
+    }
+    .invoice-box table tr.item.last td {
+        border-bottom: none;
+    }
+    .invoice-box table tr.total td:nth-child(2) {
+        border-top: 2px solid #eee;
+        font-weight: bold;
+    }
+    @media only screen and (max-width: 600px) {
+        .invoice-box table tr.top table td {
+            width: 100%;
+            display: block;
+            text-align: center;
+        }
+        .invoice-box table tr.information table td {
+            width: 100%;
+            display: block;
+            text-align: center;
+        }
+    }
+    /** RTL **/
+    .rtl {
+        direction: rtl;
+        font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+    }
+    .rtl table {
+        text-align: right;
+    }
+    .rtl table tr td:nth-child(2) {
+        text-align: left;
+    }
+    </style>
+   <div class="invoice-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="top">
+                <td colspan="3">
+                    <table>
+                        <tr>
 
-<div class="row custyle">
-    <table class="table table-striped custab">
-    <thead>
-        <tr>
-            <th>Food Name</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th class="text-center">Action</th>
-        </tr>
-    </thead>
-        {% for item in orderItems %}
-        <tr id="row_{{ item.includeId }}">
+
+                            <td>
+                                Invoice #: {{order.id}}<br>
+                                Created: {{order.time}}<br>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr class="information">
+                <td colspan="3">
+                    <table>
+                        <tr>
+                            <td>
+                                Restaurant name:{{restaurant.name}}<br>
+                                Restaurant location :{{restaurant.location}}<br>
+                                Restaurant price range{{restaurant.priceRange}}
+                            </td>
+
+                            <td>
+                                Your name:{{user.username}}<br>
+                                Your id:{{user.id}}<br>
+                                Your email:{{user.email}}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!--<tr class="heading">-->
+                <!--<td>-->
+                    <!--Payment Method-->
+                <!--</td>-->
+
+                <!--<td>-->
+                    <!--Check #-->
+                <!--</td>-->
+            <!--</tr>-->
+
+            <!--<tr class="details">-->
+                <!--<td>-->
+                    <!--Check-->
+                <!--</td>-->
+
+                <!--<td>-->
+                    <!--1000-->
+                <!--</td>-->
+            <!--</tr>-->
+
+            <tr class="heading">
+                <td>
+                    Item
+                </td>
+                                <td>
+                    Quantity
+                </td>
+                <td>
+                    Price
+                </td>
+            </tr>
+        {% for item in order %}
+            <tr class="item">
+        <!--<tr id="row_{{ item.id }}">-->
             <td>{{ item.foodName }}</td>
-            <td>{{ item.price }}</td>
-            <td>
-                <div class="input-group">
-                    <span class="input-group-btn">
-                        <button type="button" class="btn btn-danger btn-number"  data-type="minus" data-field="{{ item.includeId }}">
-                            <span class="glyphicon glyphicon-minus">-</span>
-                        </button>
-                    </span>
-                    <input type="text" name="{{ item.includeId }}" class="form-control input-number" value="{{ item.quantity }}" min="0" max="10">
-                    <span class="input-group-btn">
-                        <button type="button" class="btn btn-success btn-number" data-type="plus" data-field="{{ item.includeId }}">
-                            <span class="glyphicon glyphicon-plus">+</span>
-                        </button>
-                    </span>
-                </div>
-            </td>
-            <td class="text-center">
-                <button class="btn btn-info btn-xs updateBtn"><span class="glyphicon glyphicon-edit"></span> Update</button>
-                <button class="btn btn-danger btn-xs deleteBtn"><span class="glyphicon glyphicon-remove"></span> Delete</button>
-            </td>
-        </tr>
+                <td>{{ item.quantity }}</td>
+            <td>{{ item.price}}</td>
+                <td>{ item.price}</td>
+        <!--</tr>-->
+            </tr>
         {% endfor %}
-    </table>
-</div>
 
-{% endblock %}
-
-{% block javascript %}
-<script>
-$(".updateBtn").click(function () {
-    var cell = $(this).parent().parent().find("input")
-    $.ajax({
-        type:"POST",
-        url:"{% url 'updateOrder' %}",
-        data: {
-            'includeId':cell.attr("name"),
-            'quantity':cell.val(),
-            'csrfmiddlewaretoken':'{{ csrf_token }}'
-        },
-        success: function(data){
-            alert(data)
-        }
-    });
-    return false;
-});
-
-$(".deleteBtn").click(function () {
-    var cell = $(this).closest('tr').find("input")
-    var row_id = "#row_"+cell.attr("name")
-    $.ajax({
-        type:"POST",
-        url:"{% url 'deleteOrder' %}",
-        data: {
-            'includeId':cell.attr("name"),
-            'csrfmiddlewaretoken':'{{ csrf_token }}'
-        },
-        success: function(data){
-            alert(data)
-            $(row_id).hide();
-        }
-    });
-    return false;
-})
-</script>
+        </table>
+    </div>
+<p style="font-size:1vw" color="black" >Your order is shared with {sharedorder.name}</p>
+<p style="font-size:1vw" color="black" >you can also:</p>
+                    <div class="container ie-h-align-center-fix">
+                        <div class="row">
+                            <div class="col-xs-12 ml-auto mr-auto ie-container-width-fix">
+                                    <div class="form-row tm-search-form-row">
+                                        <!--<div class="form-group tm-form-element tm-form-element-100">-->
+                                            <!--<button  class="btn btn-primary tm-btn-search">Show list of restaurants</button>-->
+                                        <!--</div>-->
+                                        <!--<div class="form-group tm-form-element tm-form-element-50">-->
+                                            <!--<button  class="btn btn-primary tm-btn-search">Show list of restaurants</button>-->
+                                        <!--</div>-->
+                                        <div class="form-row tm-search-form-row">
+                                            <a href="http://127.0.0.1:8000/order/"><button  class="btn btn-primary tm-btn-search " href="http://127.0.0.1:8000/order/">review/edit your current order  </button></a>
+                                            <p style="font-size:1vw" color="black" align= "center" >or</p>
+                                            <a href="http://127.0.0.1:8000/restaurants/"><button  class="btn btn-primary tm-btn-search" href="http://127.0.0.1:8000/restaurants/">Show list of restaurants</button></a>
+                                      </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
 {% endblock %}

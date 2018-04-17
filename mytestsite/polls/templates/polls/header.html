@@ -20,9 +20,11 @@ http://www.tooplate.com/view/2095-level
     <link rel="stylesheet" type="text/css" href="{%static 'polls/slick/slick.css'%}"/>
     <link rel="stylesheet" type="text/css" href="{%static 'polls/slick/slick-theme.css'%}"/>
     <link rel="stylesheet" type="text/css" href="{%static 'polls/css/datepicker.css'%}"/>
-    <link rel="stylesheet" href="{%static 'polls/css/tooplate-style.css'%}">                                   <!-- Templatemo style -->
+    <link rel="stylesheet" href="{%static 'polls/css/tooplate-style.css'%}">
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script><!-- Templatemo style -->
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="{% static 'polls/js/custom.js' %}"></script>
+
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -90,9 +92,9 @@ http://www.tooplate.com/view/2095-level
                 <div class="container">
                     <div class="row">
                         <p class="col-sm-12 text-center tm-font-light tm-color-white p-4 tm-margin-b-0">
-                        Copyright &copy; <span class="tm-current-year">2018</span> Your Company
+                        Copyright &copy; <span class="tm-current-year">2018</span> cs 411
 
-                        - Designed by <a href="http://www.tooplate.com" class="tm-color-primary tm-font-normal" target="_parent">Tooplate</a></p>
+                        - Designed by <a href="" class="tm-color-primary tm-font-normal" target="_parent">Team Wutever</a></p>
                     </div>
                 </div>
             </footer>
@@ -160,20 +162,20 @@ http://www.tooplate.com/view/2095-level
                 }
             }
 
-            function setPageNav(){
-                if($(window).width() > 991) {
-                    $('#tm-top-bar').singlePageNav({
-                        currentClass:'active',
-                        offset: 79
-                    });
-                }
-                else {
-                    $('#tm-top-bar').singlePageNav({
-                        currentClass:'active',
-                        offset: 65
-                    });
-                }
-            }
+            <!--function setPageNav(){-->
+                <!--if($(window).width() > 991) {-->
+                    <!--$('#tm-top-bar').singlePageNav({-->
+                        <!--currentClass:'active',-->
+                        <!--offset: 79-->
+                    <!--});-->
+                <!--}-->
+                <!--else {-->
+                    <!--$('#tm-top-bar').singlePageNav({-->
+                        <!--currentClass:'active',-->
+                        <!--offset: 65-->
+                    <!--});-->
+                <!--}-->
+            <!--}-->
 
             function togglePlayPause() {
                 vid = $('.tmVideo').get(0);
@@ -192,19 +194,19 @@ http://www.tooplate.com/view/2095-level
 
 
                 // Google Map
-                loadGoogleMap();
+                <!--loadGoogleMap();-->
 
-                // Date Picker
-                const pickerCheckIn = datepicker('#inputCheckIn');
-                const pickerCheckOut = datepicker('#inputCheckOut');
+                <!--// Date Picker-->
+                <!--const pickerCheckIn = datepicker('#inputCheckIn');-->
+                <!--const pickerCheckOut = datepicker('#inputCheckOut');-->
 
                 // Slick carousel
                 setCarousel();
-                setPageNav();
+                <!--setPageNav();-->
 
                 $(window).resize(function() {
                   setCarousel();
-                  setPageNav();
+                  <!--setPageNav();-->
                 });
 
                 // Close navbar after clicked
@@ -223,7 +225,6 @@ http://www.tooplate.com/view/2095-level
 
                 // Update the current year in copyright
                 $('.tm-current-year').text(new Date().getFullYear());
-            });
 
 
         </script>

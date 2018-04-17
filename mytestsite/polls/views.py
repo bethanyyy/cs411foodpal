@@ -53,29 +53,33 @@ def finishorder(request):
             include.save()
             data.append(
                 {'foodName': foodName, 'quantity': request.POST[key], 'price': foodPrice, 'includeId': include.id})
-    return render(request, 'polls/finishorder.html', {'orders': data})
+            a=Restaurant.objects.get(id =restaurantID )
+    return render(request, 'polls/finishorder.html', {'orders': data,'restaurant':a,'user':orderUser,'order':order})
 def order(request):
     if not request.user.is_authenticated:
         return redirect('login')
-    
-    data = []
-    orderLocation = "blahblah street"
-    orderTime = timezone.now()
-    orderUser = request.user
-    order = Order(location=orderLocation, time=orderTime, userID=orderUser.id, sharedOrderID=0)
-    order.save()
-    for key in request.POST:
-        if  key != "csrfmiddlewaretoken" and request.POST[key] != '0':
-            #should look up food items according to the ids here
-            foodItem = FoodItem.objects.get(pk=key)
-            foodName = foodItem.foodName
-            foodPrice = foodItem.price
-            restaurantID = foodItem.restaurant.id
-            foodQuantity = int(request.POST[key])
-            include = Include(foodName=foodName, restaurantID=restaurantID, time=orderTime, orderLocation=orderLocation, userID=orderUser.id, quantity=foodQuantity)
-            include.save()
-            data.append({'foodName':foodName, 'quantity':request.POST[key], 'price':foodPrice, 'includeId':include.id})
-    return render(request, 'polls/order.html', {'orderItems':data})
+    #
+    # data = []
+    # orderLocation = "blahblah street"
+    # orderTime = timezone.now()
+    # orderUser = request.user
+    # order = Order(location=orderLocation, time=orderTime, userID=orderUser.id, sharedOrderID=0)
+    # order.save()
+    # orderUser = request.user
+    # orders = Order.objects.filter(userID=orderUser.id)
+    #should look up food items according to the ids here
+    # foodItem = FoodItem.objects.get(pk=key)
+    # foodName = foodItem.foodName
+    # foodPrice = foodItem.price
+    # restaurantID = foodItem.restaurant.id
+    # foodQuantity = int(request.POST[key])
+    # include = Include(foodName=foodName, restaurantID=restaurantID, time=orderTime, orderLocation=orderLocation, userID=orderUser.id, quantity=foodQuantity)
+    # include.save()
+    # data.append({'foodName':foodName, 'quantity':request.POST[key], 'pice':foodPrice, 'includeId':include.id})
+
+    current_order= [] #here is the current order just like "data" ( with food ... stuff on the above)
+    stuff_1=[] #here is the shared order , should with shared user  name , (could be yourself if no one is shared )
+    return render(request, 'polls/order.html', {'orders': data,'restaurant':a,'user':orderUser,'order':current_order,'sharedorder':stuff_1})
 
 def updateOrder(request):
     if not request.user.is_authenticated:

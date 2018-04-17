@@ -7,7 +7,7 @@
                     <div class="container ie-h-align-center-fix">
                         <div class="row">
                             <div class="col-xs-12 ml-auto mr-auto ie-container-width-fix">
-                                <form action="index.html" method="get" class="tm-search-form tm-section-pad-2">
+                                <form action="{% url 'restaurants'%}" method="get" class="tm-search-form tm-section-pad-2">
                                     <div class="form-row tm-search-form-row">
                                         <div class="form-group tm-form-element tm-form-element-100">
                                             <i class="fa fa-map-marker fa-2x tm-form-element-icon"></i>
@@ -121,179 +121,179 @@
                         </article>
                     </div>        
                 </div>
-            </div>
-            
-            <div class="tm-section tm-section-pad tm-bg-gray" id="tm-section-4">
-                <div class="container">
-                    <div class="row">
-                        <!--<div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">-->
-                            <!--<div class="tm-article-carousel">-->
-                                <!--<article class="tm-bg-white mr-2 tm-carousel-item">-->
-                                    <!--<img src="{%static 'polls/img/img-01.jpg'%}" alt="Image" class="img-fluid">-->
-                                    <!--<div class="tm-article-pad">-->
-                                        <!--<header><h3 class="text-uppercase tm-article-title-2">Nunc in felis aliquet metus luctus iaculis</h3></header>-->
-                                        <!--<p>Aliquam ac lacus volutpat, dictum risus at, scelerisque nulla. Nullam sollicitudin at augue venenatis eleifend. Nulla ligula ligula, egestas sit amet viverra id, iaculis sit amet ligula.</p>-->
-                                        <!--<a href="#" class="text-uppercase btn-primary tm-btn-primary">Get More Info.</a>-->
-                                    <!--</div>-->
-                                <!--</article>-->
-                                <!--<article class="tm-bg-white mr-2 tm-carousel-item">-->
-                                    <!--<img src="{%static 'polls/img/img-02.jpg'%}" alt="Image" class="img-fluid">-->
-                                    <!--<div class="tm-article-pad">-->
-                                        <!--<header><h3 class="text-uppercase tm-article-title-2">Sed cursus dictum nunc quis molestie</h3></header>-->
-                                        <!--<p>Pellentesque quis dui sit amet purus scelerisque eleifend sed ut eros. Morbi viverra blandit massa in varius. Sed nec ex eu ex tincidunt iaculis. Curabitur eget turpis gravida.</p>-->
-                                        <!--<a href="#" class="text-uppercase btn-primary tm-btn-primary">View Detail</a>-->
-                                    <!--</div>-->
-                                <!--</article>-->
-                                <!--<article class="tm-bg-white mr-2 tm-carousel-item">-->
-                                    <!--<img src="{%static 'polls/img/img-01.jpg'%}" alt="Image" class="img-fluid">-->
-                                    <!--<div class="tm-article-pad">-->
-                                        <!--<header><h3 class="text-uppercase tm-article-title-2">Eget diam pellentesque interdum ut porta</h3></header>-->
-                                        <!--<p>Aenean finibus tempor nulla, et maximus nibh dapibus ac. Duis consequat sed sapien venenatis consequat. Aliquam ac lacus volutpat, dictum risus at, scelerisque nulla.</p>-->
-                                        <!--<a href="#" class="text-uppercase btn-primary tm-btn-primary">More Info.</a>-->
-                                    <!--</div>-->
-                                <!--</article>-->
-                                <!--<article class="tm-bg-white mr-2 tm-carousel-item">-->
-                                    <!--<img src="{%static 'polls/img/img-02.jpg'%}" alt="Image" class="img-fluid">-->
-                                    <!--<div class="tm-article-pad">-->
-                                        <!--<header><h3 class="text-uppercase tm-article-title-2">Lorem ipsum dolor sit amet, consectetur</h3></header>-->
-                                        <!--<p>Suspendisse molestie sed dui eget faucibus. Duis accumsan sagittis tortor in ultrices. Praesent tortor ante, fringilla ac nibh porttitor, fermentum commodo nulla.</p>-->
-                                        <!--<a href="#" class="text-uppercase btn-primary tm-btn-primary">Detail Info.</a>-->
-                                    <!--</div>-->
-                                <!--</article>-->
-                                <!--<article class="tm-bg-white mr-2 tm-carousel-item">-->
-                                    <!--<img src="{%static 'polls/img/img-01.jpg'%}" alt="Image" class="img-fluid">-->
-                                    <!--<div class="tm-article-pad">-->
-                                        <!--<header><h3 class="text-uppercase tm-article-title-2">Orci varius natoque penatibus et</h3></header>-->
-                                        <!--<p>Pellentesque quis dui sit amet purus scelerisque eleifend sed ut eros. Morbi viverra blandit massa in varius. Sed nec ex eu ex tincidunt iaculis. Curabitur eget turpis gravida.</p>-->
-                                        <!--<a href="#" class="text-uppercase btn-primary tm-btn-primary">Read More</a>-->
-                                    <!--</div>-->
-                                <!--</article>-->
-                                <!--<article class="tm-bg-white tm-carousel-item">-->
-                                    <!--<img src="{%static 'polls/img/img-02.jpg'%}" alt="Image" class="img-fluid">-->
-                                    <!--<div class="tm-article-pad">-->
-                                        <!--<header><h3 class="text-uppercase tm-article-title-2">Nullam sollicitudin at augue venenatis eleifend</h3></header>-->
-                                        <!--<p>Aenean finibus tempor nulla, et maximus nibh dapibus ac. Duis consequat sed sapien venenatis consequat. Aliquam ac lacus volutpat, dictum risus at, scelerisque nulla.</p>-->
-                                        <!--<a href="#" class="text-uppercase btn-primary tm-btn-primary">More Details</a>-->
-                                    <!--</div>-->
-                                <!--</article>-->
-                            <!--</div>-->
-                        <!--</div>-->
+            <!--</div>-->
+            <!---->
+            <!--<div class="tm-section tm-section-pad tm-bg-gray" id="tm-section-4">-->
+                <!--<div class="container">-->
+                    <!--<div class="row">-->
+                        <!--&lt;!&ndash;<div class="col-sm-12 col-md-12 col-lg-8 col-xl-8">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<div class="tm-article-carousel">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<article class="tm-bg-white mr-2 tm-carousel-item">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<img src="{%static 'polls/img/img-01.jpg'%}" alt="Image" class="img-fluid">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<div class="tm-article-pad">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<header><h3 class="text-uppercase tm-article-title-2">Nunc in felis aliquet metus luctus iaculis</h3></header>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p>Aliquam ac lacus volutpat, dictum risus at, scelerisque nulla. Nullam sollicitudin at augue venenatis eleifend. Nulla ligula ligula, egestas sit amet viverra id, iaculis sit amet ligula.</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<a href="#" class="text-uppercase btn-primary tm-btn-primary">Get More Info.</a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</article>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<article class="tm-bg-white mr-2 tm-carousel-item">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<img src="{%static 'polls/img/img-02.jpg'%}" alt="Image" class="img-fluid">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<div class="tm-article-pad">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<header><h3 class="text-uppercase tm-article-title-2">Sed cursus dictum nunc quis molestie</h3></header>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p>Pellentesque quis dui sit amet purus scelerisque eleifend sed ut eros. Morbi viverra blandit massa in varius. Sed nec ex eu ex tincidunt iaculis. Curabitur eget turpis gravida.</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<a href="#" class="text-uppercase btn-primary tm-btn-primary">View Detail</a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</article>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<article class="tm-bg-white mr-2 tm-carousel-item">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<img src="{%static 'polls/img/img-01.jpg'%}" alt="Image" class="img-fluid">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<div class="tm-article-pad">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<header><h3 class="text-uppercase tm-article-title-2">Eget diam pellentesque interdum ut porta</h3></header>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p>Aenean finibus tempor nulla, et maximus nibh dapibus ac. Duis consequat sed sapien venenatis consequat. Aliquam ac lacus volutpat, dictum risus at, scelerisque nulla.</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<a href="#" class="text-uppercase btn-primary tm-btn-primary">More Info.</a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</article>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<article class="tm-bg-white mr-2 tm-carousel-item">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<img src="{%static 'polls/img/img-02.jpg'%}" alt="Image" class="img-fluid">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<div class="tm-article-pad">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<header><h3 class="text-uppercase tm-article-title-2">Lorem ipsum dolor sit amet, consectetur</h3></header>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p>Suspendisse molestie sed dui eget faucibus. Duis accumsan sagittis tortor in ultrices. Praesent tortor ante, fringilla ac nibh porttitor, fermentum commodo nulla.</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<a href="#" class="text-uppercase btn-primary tm-btn-primary">Detail Info.</a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</article>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<article class="tm-bg-white mr-2 tm-carousel-item">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<img src="{%static 'polls/img/img-01.jpg'%}" alt="Image" class="img-fluid">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<div class="tm-article-pad">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<header><h3 class="text-uppercase tm-article-title-2">Orci varius natoque penatibus et</h3></header>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p>Pellentesque quis dui sit amet purus scelerisque eleifend sed ut eros. Morbi viverra blandit massa in varius. Sed nec ex eu ex tincidunt iaculis. Curabitur eget turpis gravida.</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<a href="#" class="text-uppercase btn-primary tm-btn-primary">Read More</a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</article>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<article class="tm-bg-white tm-carousel-item">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<img src="{%static 'polls/img/img-02.jpg'%}" alt="Image" class="img-fluid">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<div class="tm-article-pad">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<header><h3 class="text-uppercase tm-article-title-2">Nullam sollicitudin at augue venenatis eleifend</h3></header>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<p>Aenean finibus tempor nulla, et maximus nibh dapibus ac. Duis consequat sed sapien venenatis consequat. Aliquam ac lacus volutpat, dictum risus at, scelerisque nulla.</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<a href="#" class="text-uppercase btn-primary tm-btn-primary">More Details</a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</article>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
 
-                        <!--<div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 tm-recommended-container">-->
-                            <!--<div class="tm-bg-white">-->
-                                <!--<div class="tm-bg-primary tm-sidebar-pad">-->
-                                    <!--<h3 class="tm-color-white tm-sidebar-title">Recommended Places</h3>-->
-                                    <!--<p class="tm-color-white tm-margin-b-0 tm-font-light">Enamel pin cliche tilde, kitsch and VHS thundercats</p>-->
-                                <!--</div>-->
-                                <!--<div class="tm-sidebar-pad-2">-->
-                                    <!--<a href="#" class="media tm-media tm-recommended-item">-->
-                                        <!--<img src="{%static 'polls/img/tn-img-01.jpg'%}" alt="Image">-->
-                                        <!--<div class="media-body tm-media-body tm-bg-gray">-->
-                                            <!--<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Europe</h4>-->
-                                        <!--</div>-->
-                                    <!--</a>-->
-                                    <!--<a href="#" class="media tm-media tm-recommended-item">-->
-                                        <!--<img src="{%static 'polls/img/tn-img-02.jpg'%}" alt="Image">-->
-                                        <!--<div class="media-body tm-media-body tm-bg-gray">-->
-                                            <!--<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Asia</h4>-->
-                                        <!--</div>-->
-                                    <!--</a>-->
-                                    <!--<a href="#" class="media tm-media tm-recommended-item">-->
-                                        <!--<img src="{%static 'polls/img/tn-img-03.jpg'%}" alt="Image">-->
-                                        <!--<div class="media-body tm-media-body tm-bg-gray">-->
-                                            <!--<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Africa</h4>-->
-                                        <!--</div>-->
-                                    <!--</a>-->
-                                    <!--<a href="#" class="media tm-media tm-recommended-item">-->
-                                        <!--<img src="{%static 'polls/img/tn-img-04.jpg'%}" alt="Image">-->
-                                        <!--<div class="media-body tm-media-body tm-bg-gray">-->
-                                            <!--<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">South America</h4>-->
-                                        <!--</div>-->
-                                    <!--</a>-->
-                                <!--</div>-->
-                            <!--</div>-->
-                        <!--</div>-->
-                    </div>
-                </div>
-            </div>
-
-            <div class="tm-bg-video">
-                <div class="overlay">
-                    <i class="fa fa-5x fa-play-circle tm-btn-play"></i>
-                    <i class="fa fa-5x fa-pause-circle tm-btn-pause"></i>
-                </div>
-                <video controls="" loop="" class="tmVideo">
-                    <source src="{%static 'polls/videos/video.mp4'%}" type="video/mp4">
-                    <source src="{%static 'polls/videos/video.ogg'%}" type="video/ogg">
-                    Your browser does not support the video tag.
-                </video>
-                <!--<div class="tm-section tm-section-pad tm-bg-img" id="tm-section-5">                                                        -->
-                    <!--<div class="container ie-h-align-center-fix">-->
-                        <!--<div class="row tm-flex-align-center">-->
-                            <!--<div class="col-xs-12 col-md-12 col-lg-3 col-xl-3 tm-media-title-container">-->
-                                <!--<h2 class="text-uppercase tm-section-title-2">ASIA</h2>-->
-                                <!--<h3 class="tm-color-primary tm-font-semibold tm-section-subtitle-2">Singapore</h3>-->
-                            <!--</div>-->
-                            <!--<div class="col-xs-12 col-md-12 col-lg-9 col-xl-9 mt-0 mt-sm-3">-->
-                                <!--<div class="ml-auto tm-bg-white-shadow tm-pad tm-media-container">-->
-                                    <!--<article class="media tm-margin-b-20 tm-media-1">-->
-                                        <!--<img src="{%static 'polls/img/img-03.jpg'%}" alt="Image">-->
-                                        <!--<div class="media-body tm-media-body-1 tm-media-body-v-center">-->
-                                            <!--<h3 class="tm-font-semibold tm-color-primary tm-article-title-3">Suspendisse vel est libero sem phasellus ac laoreet</h3>-->
-                                            <!--<p>Integer libero purus, consectetur vitae posuere quis, maximus id diam. Vivamus eget tellus ornare, sollicitudin quam id, dictum nulla. Phasellus finibus rhoncus justo, tempus eleifend neque dictum ac. Aenean metus leo, consectetur non. -->
-                                            <!--<br><br>-->
-											<!--Etiam aliquam arcu at mauris consectetur scelerisque. Integer elementum justo in orci facilisis ultricies. Pellentesque at velit ante. Duis scelerisque metus vel felis porttitor gravida.</p>-->
-                                        <!--</div>                                -->
-                                    <!--</article>-->
-                                    <!--<article class="media tm-margin-b-20 tm-media-1">-->
-                                        <!--<img src="{%static 'polls/img/img-04.jpg'%}" alt="Image">-->
-                                        <!--<div class="media-body tm-media-body-1 tm-media-body-v-center">-->
-                                            <!--<h3 class="tm-font-semibold tm-article-title-3">Suspendisse vel est libero sem phasellus ac laoreet</h3>-->
-                                            <!--<p>Duis accumsan sagittis tortor in ultrices. Praesent tortor ante, fringilla ac nibh porttitor, fermentum commodo nulla.</p>-->
-                                            <!--<a href="#" class="text-uppercase tm-color-primary tm-font-semibold">Continue reading...</a>-->
-                                        <!--</div>                                -->
-                                    <!--</article>-->
-                                    <!--<article class="media tm-margin-b-20 tm-media-1">-->
-                                        <!--<img src="{%static 'polls/img/img-05.jpg'%}" alt="Image">-->
-                                        <!--<div class="media-body tm-media-body-1 tm-media-body-v-center">-->
-                                            <!--<h3 class="tm-font-semibold tm-article-title-3">Faucibus dolor ligula nisl metus auctor aliquet</h3>-->
-                                            <!--<p>Nunc in felis aliquet metus luctus iaculis vel et nisi. Nulla venenatis nisl orci, laoreet ultricies massa tristique id.</p>-->
-                                            <!--<a href="#" class="text-uppercase tm-color-primary tm-font-semibold">Continue reading...</a>-->
-                                        <!--</div>                                -->
-                                    <!--</article>-->
-                                <!--</div>                            -->
-                            <!--</div>-->
-                        <!--</div>-->
+                        <!--&lt;!&ndash;<div class="col-sm-12 col-md-12 col-lg-4 col-xl-4 tm-recommended-container">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<div class="tm-bg-white">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<div class="tm-bg-primary tm-sidebar-pad">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<h3 class="tm-color-white tm-sidebar-title">Recommended Places</h3>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<p class="tm-color-white tm-margin-b-0 tm-font-light">Enamel pin cliche tilde, kitsch and VHS thundercats</p>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<div class="tm-sidebar-pad-2">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<a href="#" class="media tm-media tm-recommended-item">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<img src="{%static 'polls/img/tn-img-01.jpg'%}" alt="Image">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<div class="media-body tm-media-body tm-bg-gray">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Europe</h4>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<a href="#" class="media tm-media tm-recommended-item">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<img src="{%static 'polls/img/tn-img-02.jpg'%}" alt="Image">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<div class="media-body tm-media-body tm-bg-gray">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Asia</h4>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<a href="#" class="media tm-media tm-recommended-item">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<img src="{%static 'polls/img/tn-img-03.jpg'%}" alt="Image">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<div class="media-body tm-media-body tm-bg-gray">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">Africa</h4>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<a href="#" class="media tm-media tm-recommended-item">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<img src="{%static 'polls/img/tn-img-04.jpg'%}" alt="Image">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<div class="media-body tm-media-body tm-bg-gray">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<h4 class="text-uppercase tm-font-semibold tm-sidebar-item-title">South America</h4>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</a>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
                     <!--</div>-->
                 <!--</div>-->
-            </div>           
-            
-            <div class="tm-section tm-section-pad tm-bg-img tm-position-relative" id="tm-section-6">
-                <div class="container ie-h-align-center-fix">
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-7">
-                            <div id="google-map"></div>        
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-5 mt-3 mt-md-0">
-                            <div class="tm-bg-white tm-p-4">
-                                <form action="index.html" method="post" class="contact-form">
-                                    <div class="form-group">
-                                        <input type="text" id="contact_name" name="contact_name" class="form-control" placeholder="Name"  required/>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="email" id="contact_email" name="contact_email" class="form-control" placeholder="Email"  required/>
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="text" id="contact_subject" name="contact_subject" class="form-control" placeholder="Subject"  required/>
-                                    </div>
-                                    <div class="form-group">
-                                        <textarea id="contact_message" name="contact_message" class="form-control" rows="9" placeholder="Message" required></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary tm-btn-primary">Send Message Now</button>
-                                </form>
-                            </div>                            
-                        </div>
-                    </div>        
-                </div>
+            <!--</div>-->
+
+            <!--<div class="tm-bg-video">-->
+                <!--<div class="overlay">-->
+                    <!--<i class="fa fa-5x fa-play-circle tm-btn-play"></i>-->
+                    <!--<i class="fa fa-5x fa-pause-circle tm-btn-pause"></i>-->
+                <!--</div>-->
+                <!--<video controls="" loop="" class="tmVideo">-->
+                    <!--<source src="{%static 'polls/videos/video.mp4'%}" type="video/mp4">-->
+                    <!--<source src="{%static 'polls/videos/video.ogg'%}" type="video/ogg">-->
+                    <!--Your browser does not support the video tag.-->
+                <!--</video>-->
+                <!--&lt;!&ndash;<div class="tm-section tm-section-pad tm-bg-img" id="tm-section-5">                                                        &ndash;&gt;-->
+                    <!--&lt;!&ndash;<div class="container ie-h-align-center-fix">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<div class="row tm-flex-align-center">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<div class="col-xs-12 col-md-12 col-lg-3 col-xl-3 tm-media-title-container">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<h2 class="text-uppercase tm-section-title-2">ASIA</h2>&ndash;&gt;-->
+                                <!--&lt;!&ndash;<h3 class="tm-color-primary tm-font-semibold tm-section-subtitle-2">Singapore</h3>&ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                            <!--&lt;!&ndash;<div class="col-xs-12 col-md-12 col-lg-9 col-xl-9 mt-0 mt-sm-3">&ndash;&gt;-->
+                                <!--&lt;!&ndash;<div class="ml-auto tm-bg-white-shadow tm-pad tm-media-container">&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<article class="media tm-margin-b-20 tm-media-1">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<img src="{%static 'polls/img/img-03.jpg'%}" alt="Image">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<div class="media-body tm-media-body-1 tm-media-body-v-center">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<h3 class="tm-font-semibold tm-color-primary tm-article-title-3">Suspendisse vel est libero sem phasellus ac laoreet</h3>&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<p>Integer libero purus, consectetur vitae posuere quis, maximus id diam. Vivamus eget tellus ornare, sollicitudin quam id, dictum nulla. Phasellus finibus rhoncus justo, tempus eleifend neque dictum ac. Aenean metus leo, consectetur non. &ndash;&gt;-->
+                                            <!--&lt;!&ndash;<br><br>&ndash;&gt;-->
+											<!--&lt;!&ndash;Etiam aliquam arcu at mauris consectetur scelerisque. Integer elementum justo in orci facilisis ultricies. Pellentesque at velit ante. Duis scelerisque metus vel felis porttitor gravida.</p>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>                                &ndash;&gt;-->
+                                    <!--&lt;!&ndash;</article>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<article class="media tm-margin-b-20 tm-media-1">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<img src="{%static 'polls/img/img-04.jpg'%}" alt="Image">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<div class="media-body tm-media-body-1 tm-media-body-v-center">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<h3 class="tm-font-semibold tm-article-title-3">Suspendisse vel est libero sem phasellus ac laoreet</h3>&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<p>Duis accumsan sagittis tortor in ultrices. Praesent tortor ante, fringilla ac nibh porttitor, fermentum commodo nulla.</p>&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<a href="#" class="text-uppercase tm-color-primary tm-font-semibold">Continue reading...</a>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>                                &ndash;&gt;-->
+                                    <!--&lt;!&ndash;</article>&ndash;&gt;-->
+                                    <!--&lt;!&ndash;<article class="media tm-margin-b-20 tm-media-1">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<img src="{%static 'polls/img/img-05.jpg'%}" alt="Image">&ndash;&gt;-->
+                                        <!--&lt;!&ndash;<div class="media-body tm-media-body-1 tm-media-body-v-center">&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<h3 class="tm-font-semibold tm-article-title-3">Faucibus dolor ligula nisl metus auctor aliquet</h3>&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<p>Nunc in felis aliquet metus luctus iaculis vel et nisi. Nulla venenatis nisl orci, laoreet ultricies massa tristique id.</p>&ndash;&gt;-->
+                                            <!--&lt;!&ndash;<a href="#" class="text-uppercase tm-color-primary tm-font-semibold">Continue reading...</a>&ndash;&gt;-->
+                                        <!--&lt;!&ndash;</div>                                &ndash;&gt;-->
+                                    <!--&lt;!&ndash;</article>&ndash;&gt;-->
+                                <!--&lt;!&ndash;</div>                            &ndash;&gt;-->
+                            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+            <!--</div>           -->
+            <!---->
+            <!--<div class="tm-section tm-section-pad tm-bg-img tm-position-relative" id="tm-section-6">-->
+                <!--<div class="container ie-h-align-center-fix">-->
+                    <!--<div class="row">-->
+                        <!--<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-7">-->
+                            <!--<div id="google-map"></div>        -->
+                        <!--</div>-->
+                        <!--<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xl-5 mt-3 mt-md-0">-->
+                            <!--<div class="tm-bg-white tm-p-4">-->
+                                <!--<form action="index.html" method="post" class="contact-form">-->
+                                    <!--<div class="form-group">-->
+                                        <!--<input type="text" id="contact_name" name="contact_name" class="form-control" placeholder="Name"  required/>-->
+                                    <!--</div>-->
+                                    <!--<div class="form-group">-->
+                                        <!--<input type="email" id="contact_email" name="contact_email" class="form-control" placeholder="Email"  required/>-->
+                                    <!--</div>-->
+                                    <!--<div class="form-group">-->
+                                        <!--<input type="text" id="contact_subject" name="contact_subject" class="form-control" placeholder="Subject"  required/>-->
+                                    <!--</div>-->
+                                    <!--<div class="form-group">-->
+                                        <!--<textarea id="contact_message" name="contact_message" class="form-control" rows="9" placeholder="Message" required></textarea>-->
+                                    <!--</div>-->
+                                    <!--<button type="submit" class="btn btn-primary tm-btn-primary">Send Message Now</button>-->
+                                <!--</form>-->
+                            <!--</div>                            -->
+                        <!--</div>-->
+                    <!--</div>        -->
+                <!--</div>-->
             </div>
    {% endblock %}

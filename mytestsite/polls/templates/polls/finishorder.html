@@ -100,15 +100,14 @@
     <div class="invoice-box">
         <table cellpadding="0" cellspacing="0">
             <tr class="top">
-                <td colspan="2">
+                <td colspan="3">
                     <table>
                         <tr>
 
 
                             <td>
-                                Invoice #: {order.numbers}<br>
-                                Created: {order.createdate}<br>
-                                Due: {order.finishdate}
+                                Invoice #: {{order.id}}<br>
+                                Created: {{order.time}}<br>
                             </td>
                         </tr>
                     </table>
@@ -116,19 +115,19 @@
             </tr>
 
             <tr class="information">
-                <td colspan="2">
+                <td colspan="3">
                     <table>
                         <tr>
                             <td>
-                                {restraunt.name}.<br>
-                                {restraunt.address}<br>
-                                {restraunt.address2}
+                                Restaurant name:{{restaurant.name}}<br>
+                                Restaurant location :{{restaurant.location}}<br>
+                                Restaurant price range{{restaurant.priceRange}}
                             </td>
 
                             <td>
-                                {user.name}.<br>
-                                {user.address}<br>
-                               {user.email}
+                                Your name:{{user.username}}<br>
+                                Your id:{{user.id}}<br>
+                                Your email:{{user.email}}
                             </td>
                         </tr>
                     </table>
@@ -160,22 +159,38 @@
                     Item
                 </td>
                                 <td>
-                    Quantity
+                    Price
                 </td>
                 <td>
-                    Price
+                    Quantity
                 </td>
             </tr>
         {% for item in orders %}
-            <tr class="item">
-        <!--<tr id="row_{{ item.id }}">-->
+        <tr class ="tr-group" id="row_{{ item.includeId }}">
             <td>{{ item.foodName }}</td>
-                <td>{{ item.quantity }}</td>
-            <td>{{ item.price}}</td>
-        <!--</tr>-->
-            </tr>
-        {% endfor %}
+            <td>{{ item.price }}</td>
+            <td>
+                <div class="input-group">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-danger btn-number"  data-type="minus" data-field="{{ item.includeId }}">
+                            <span class="glyphicon glyphicon-minus">-</span>
+                        </button>
+                    </span>
+                    <input type="text" name="{{ item.includeId }}" class="form-control input-number" value="{{ item.quantity }}" min="0" max="10">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-success btn-number" data-type="plus" data-field="{{ item.includeId }}">
+                            <span class="glyphicon glyphicon-plus">+</span>
+                        </button>
+                    </span>
+                </div>
+            </td>
+            <td class="text-center">
 
+                <button class="btn btn-danger btn-xs deleteBtn"><span class="glyphicon glyphicon-remove"></span> Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+        <!--<button class="btn btn-info btn-xs updateBtn"><span class="glyphicon glyphicon-edit"></span> Update</button>-->
         </table>
     </div>
 <p style="font-size:1vw" color="black" >you can also:</p>
@@ -190,7 +205,7 @@
                                             <!--<button  class="btn btn-primary tm-btn-search">Show list of restaurants</button>-->
                                         <!--</div>-->
                                         <div class="form-row tm-search-form-row">
-                                            <a href="http://127.0.0.1:8000/order/"><button  class="btn btn-primary tm-btn-search " href="http://127.0.0.1:8000/order/">review/edit your current order  </button></a>
+                                            <a href="http://127.0.0.1:8000/order/"><button  class="btn btn-primary tm-btn-search updateBtn" href="http://127.0.0.1:8000/order/"> confirm order  </button></a>
                                             <p style="font-size:1vw" color="black" align= "center" >or</p>
                                             <a href="http://127.0.0.1:8000/restaurants/"><button  class="btn btn-primary tm-btn-search" href="http://127.0.0.1:8000/restaurants/">Show list of restaurants</button></a>
                                       </div>
@@ -198,4 +213,47 @@
                             </div>
                         </div>
                     </div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+$(".updateBtn").click(function () {
+    var cell = $("tr").find("input")
+    for (i=0;i<cell.length; i++){
+        console.log("Input is: " + cell[i].value)
+   $.ajax({
+        type:"POST",
+        url:"{% url 'updateOrder' %}",
+        data: {
+            'includeId':cell[i].name,
+            'quantity':cell[i].value,
+            'csrfmiddlewaretoken':'{{ csrf_token }}'
+        },
+        success: function(data){
+            alert(data)
+        }
+        });
+     }
+      top.location.href="http://127.0.0.1:8000/order"
+    return false;
+});
+
+$(".deleteBtn").click(function () {
+    var cell = $(this).closest('tr').find("input")
+    var row_id = "#row_"+cell.attr("name")
+    $.ajax({
+        type:"POST",
+        url:"{% url 'deleteOrder' %}",
+        data: {
+            'includeId':cell.attr("name"),
+            'csrfmiddlewaretoken':'{{ csrf_token }}'
+        },
+        success: function(data){
+            alert(data)
+            $(row_id).hide();
+        }
+    });
+    return false;
+})
+</script>
 {% endblock %}
