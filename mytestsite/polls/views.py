@@ -118,12 +118,14 @@ def currentOrdersHelper(user):
     currentOrders = [
         {'id':1, 'time':'ordertimexxx', 'restaurantName':'rest name xxx', 
          'restaurantLocation': 'restaurant location ccc', 'restaurantPriceRange': 'SS', 'location': 'order location',
+         'sharedOrder': 11, 'pickUpLoc': 'temp pickup loc', 'status': 'unfulfilled',
          'items': [
              {'foodName':'A', 'quantity':1, 'price': 12},
              {'foodName':'B', 'quantity':2, 'price': 9}
          ]},
         {'id':2, 'time':'ordertimeyyy', 'restaurantName':'rest name yyy', 
          'restaurantLocation': 'restaurant location ddd', 'restaurantPriceRange': 'SSS', 'location': 'order location ww',
+         'sharedOrder': 12, 'pickUpLoc': 'temp pickup loc mmm', 'status': 'unfulfilled',
          'items': [
              {'foodName':'C', 'quantity':3, 'price': 2}
          ]}

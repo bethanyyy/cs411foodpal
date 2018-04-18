@@ -102,42 +102,56 @@
             </td>
         </tr>
 
-    <tr class="information">
-        <td colspan="3">
-            <table>
-                <tr>
-                    <td>
-                    Restaurant name: {{order.restaurantName}}<br>
-                    Restaurant location: {{order.restaurantLocation}}<br>
-                    Restaurant price range: {{order.restaurantPriceRange}}
-                    </td>
+        <tr class="information">
+            <td colspan="3">
+                <table>
+                    <tr>
+                        <td>
+                        Restaurant name: {{order.restaurantName}}<br>
+                        Restaurant location: {{order.restaurantLocation}}<br>
+                        Restaurant price range: {{order.restaurantPriceRange}}
+                        </td>
 
-                    <td>
-                    Your name: {{user.username}}<br>
-                    Your email: {{user.email}}<br>
-                    Your order address: {{order.location}}
-                    </td>
-                </tr>
-            </table>
-        </td>
-    </tr>
+                        <td>
+                        Your name: {{user.username}}<br>
+                        Your email: {{user.email}}<br>
+                        Your order address: {{order.location}}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
 
-    <tr class="heading">
-        <td>Item</td>
-        <td>Quantity</td>
-        <td>Price</td>
-    </tr>
+        <tr class="heading">
+            <td>Item</td>
+            <td>Quantity</td>
+            <td>Price</td>
+        </tr>
+
+        {% for item in order.items %}
+        <tr class="item">
+            <!--<tr id="row_{{ item.id }}">-->
+            <td>{{ item.foodName }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.price}}</td>
+            <!--</tr>-->
+        </tr>
+        {% endfor %}
+
+        <tr class="top">
+            <td colspan="3">
+                <table>
+                    <tr>
+                        <td>
+                        SharedOrder #: {{order.sharedOrder}}<br>
+                        Tentative Pickup Location: {{order.pickUpLoc}}<br>
+                        Status:  {{order.status}}
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
         
-    {% for item in order.items %}
-    <tr class="item">
-        <!--<tr id="row_{{ item.id }}">-->
-        <td>{{ item.foodName }}</td>
-        <td>{{ item.quantity }}</td>
-        <td>{{ item.price}}</td>
-        <!--</tr>-->
-    </tr>
-    {% endfor %}
-
     </table>
 </div>
 {% endfor %}
