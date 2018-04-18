@@ -6,17 +6,17 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('restaurants/', views.restaurants, name='restaurants'),
-    path('restaurantDetails/<int:id>/', views.restaurantDetails, name='restaurantDetails'),
-    path('restaurantDetails/<int:id>/', views.restaurantDetails, name='restaurantDetails'),
-    path('order/', views.order, name='order'),
-    path('order/update/', views.updateOrder, name='updateOrder'),
-    path('order/delete/', views.deleteOrder, name='deleteOrder'),
+    path('restaurantDetails/', views.restaurantDetails, name='restaurantDetails'),
     path('login/', auth_views.login, {'template_name': 'polls/login.html'}, name='login'),
     path('logout/', auth_views.logout, name='logout'),
     path('signup/', views.signup, name='signup'),
     path('orderHistory/', views.orderHistory, name='orderHistory'),
-    path('profile/',views.profile,name='profile'),
-    path('finishorder/', views.finishorder, name='finishorder')
-
-    #path('orderDetail/', views.orderDetail, name='orderDetail')
+    path('profile/',views.profile, name='profile'),
+    path('finishOrder/', views.finishOrder, name='finishOrder'),
+    path('finishOrder/update/', views.updateItem, name='updateItem'),
+    path('finishOrder/delete/', views.deleteItem, name='deleteItem'),
+    path('currentOrders/', views.currentOrders, name='currentOrders'),
+    path('confirmOrder/', views.confirmOrder, name='confirmOrder'),
+    path('cancelOrder/', views.cancelOrder, name='cancelOrder'),
+    path('profile/updatePrefs/', views.updatePrefs, name='updatePrefs')
 ]

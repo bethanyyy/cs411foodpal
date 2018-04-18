@@ -67,6 +67,7 @@ class SharedOrder(models.Model):
     orderLocation = models.CharField(max_length=100)
     userID = models.CharField(max_length=10)
     pickupPoint = models.CharField(max_length=100)
+    # we need a new attribute 'status' to indicate whether it is fulfilled(i.e.meets min order amount)
 
     class Meta:
         unique_together = (("time", "orderLocation", "userID"),)

@@ -2,8 +2,46 @@
 {% block content %}
 
 <!-- Page Heading -->
+
 <h1 class="my-4">Restaurants
 </h1>
+
+<div class="row my-4">
+    <div class="col-lg-12">
+            <div class="card">
+                <form action="{% url 'restaurants'%}" method="get">
+                    <div class="card-body">
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                {% if orderLocation %}
+                                <input type="text" name="address" class="form-control" id="orderLocation" value="{{ orderLocation }}">
+                                {% else %}
+                                <input type="text" name="address" class="form-control" id="orderLocation" value="Type your address here">
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% for type in allTypes %}
+                            <div class="form-check-inline" style="padding-left: 10px">
+                                <div class="col-sm-12" >
+                                    {% if type in preferences %}
+                                        <input type="checkbox" name="foodTypeList" class="form-check-input" value="{{ type }}" checked="checked">
+                                    {% else %}
+                                        <input type="checkbox" name="foodTypeList" class="form-check-input" value="{{ type }}">
+                                    {% endif %}
+                                    <label class="form-check-label" for="checkbox104">{{ type }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="card-footer">
+                        <button type="button submit" class="btn btn-primary updateBtn">
+                            Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+</div>
 
 <div class="row">
     {% for restaurant in restaurants %}
@@ -12,7 +50,11 @@
             <a href="#"><img class="card-img-top" src="{{ restaurant.image }}" alt=""></a>
             <div class="card-body">
                 <h4 class="card-title">
-                    <a href="{% url 'restaurantDetails' restaurant.id %}">{{ restaurant.name }}</a>
+                    <form method="post" action="{% url 'restaurantDetails' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="restaurantId" value="{{ restaurant.id }}" />
+                        <a href="#" class="restaurantLink">{{ restaurant.name }}</a>
+                    </form>
                 </h4>
                 <ul class="card-text">
                     <li>Type: {{ restaurant.type }}</li>
@@ -25,32 +67,15 @@
     </div>
     {% endfor %}
 </div>
-<!-- /.row -->
 
-<!-- Pagination 
-<ul class="pagination justify-content-center">
-    <li class="page-item">
-        <a class="page-link" href="#" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-            <span class="sr-only">Previous</span>
-        </a>
-    </li>
-    <li class="page-item">
-        <a class="page-link" href="#">1</a>
-    </li>
-    <li class="page-item">
-        <a class="page-link" href="#">2</a>
-    </li>
-    <li class="page-item">
-        <a class="page-link" href="#">3</a>
-    </li>
-    <li class="page-item">
-        <a class="page-link" href="#" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-            <span class="sr-only">Next</span>
-        </a>
-    </li>
-</ul>
--->
+{% endblock %}
 
+{% block javascript %}
+<script>
+$(".restaurantLink").click(function () {
+    console.log("enter restaurantDetails");
+    $(this).parent().submit();
+    return false;
+});
+</script>
 {% endblock %}
