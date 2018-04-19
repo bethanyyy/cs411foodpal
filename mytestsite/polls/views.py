@@ -4,6 +4,7 @@ from django.http import HttpResponse, Http404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
+from decimal import Decimal
 
 from .models import Restaurant, FoodItem, Order, Include, Preference, SharedOrder
 from .forms import SignUpForm
@@ -99,10 +100,12 @@ def finishOrder(request):
     orderTime = timezone.now()
     orderUser = request.user
     restaurantId = request.session["restaurantId"]
-    order = Order.objects.create(location=orderLocation, time=orderTime, userID=orderUser.id, restaurantID=restaurantId, sharedOrderID_id=None)
+    order = Order.objects.create(location=orderLocation, time=orderTime, totalCost=0.00, userID=orderUser.id, restaurantID=restaurantId, sharedOrderID_id=None)
     order.save()
     request.session["orderId"] = order.pk
-    print(request.POST)
+
+    # TODO: display total cost
+    orderTotalCost = 0.00
     for key in request.POST:
         if  key != "csrfmiddlewaretoken" and request.POST[key] != '0':
             #should look up food items according to the ids here
@@ -111,9 +114,12 @@ def finishOrder(request):
             foodId = foodItem.id
             foodPrice = foodItem.price
             foodQuantity = int(request.POST[key])
+            orderTotalCost += float(foodPrice) * foodQuantity
             include = Include(foodID=foodId, orderID=order.pk, quantity=foodQuantity)
             include.save()
             data.append({'foodName':foodName, 'quantity':request.POST[key], 'price':foodPrice, 'includeId':include.id, 'foodId':foodId})
+    order.totalCost = Decimal(orderTotalCost)
+    order.save()
     restaurant = Restaurant.objects.get(id=restaurantId)
     return render(request, 'polls/finishOrder.html', {'orderItems':data, 'restaurantName':restaurant.name, "orderLocation":orderLocation})
 
@@ -135,9 +141,8 @@ def currentOrdersHelper(user):
     idx = 0
     allUserOrders = Order.objects.filter(userID=user.id).all()
     for userOrder in allUserOrders:
-        # print(userOrder.sharedOrderID.id)
         sharedOrder = userOrder.sharedOrderID
-        if sharedOrder.status == "unfulfilled":
+        if sharedOrder is not None and sharedOrder.status == "unfulfilled":
             idx += 1
             restaurant = Restaurant.objects.get(pk=userOrder.restaurantID)
             restaurantName = restaurant.name
@@ -171,8 +176,19 @@ def updateItem(request):
     
     if request.method == "POST":
         includeInstance = Include.objects.get(pk=int(request.POST['includeId']))
+        originalQuantity = includeInstance.quantity
         includeInstance.quantity=int(request.POST['quantity'])
         includeInstance.save()
+
+        order = Order.objects.get(id=includeInstance.orderID)
+        print(order)
+        orderTotalCost = float(order.totalCost)
+        foodPrice = FoodItem.objects.get(pk=includeInstance.foodID).price
+        orderTotalCost -= float(foodPrice) * float(originalQuantity)
+        orderTotalCost += float(foodPrice) * includeInstance.quantity
+        order.totalCost = Decimal(orderTotalCost)
+        order.save()
+
         return HttpResponse("Successful update on Include instance: "+str(includeInstance.pk))
     else:
         raise Http404
@@ -184,7 +200,16 @@ def deleteItem(request):
     
     if request.method == "POST":
         includeInstance = Include.objects.get(pk=int(request.POST['includeId']))
+        originalQuantity = includeInstance.quantity
         includeInstance.delete()
+
+        order = Order.objects.get(id=includeInstance.orderID)
+        orderTotalCost = float(order.totalCost)
+        foodPrice = FoodItem.objects.get(pk=includeInstance.foodID).price
+        orderTotalCost -= float(foodPrice) * float(originalQuantity)
+        order.totalCost = Decimal(orderTotalCost)
+        order.save()
+
         return HttpResponse("Successful deleted Include instance: "+str(request.POST['includeId']))
     else:
         raise Http404
@@ -215,12 +240,19 @@ def orderHistory(request):
 
 def confirmOrder(request):
     orderId = request.session["orderId"]
+    orderTotalCost = 0.00
     for key in request.POST:
         if  key != "csrfmiddlewaretoken" and key != "orderLocation" and request.POST[key] != '0':
             # TODO: update food item quantity(same as in finishOrder) - clear
             includeInstance = Include.objects.get(id=key)
             includeInstance.quantity = int(request.POST[key])
             includeInstance.save()
+
+            order = Order.objects.get(id=orderId)
+            foodPrice = FoodItem.objects.get(pk=includeInstance.foodID).price
+            orderTotalCost += float(foodPrice) * includeInstance.quantity
+            order.totalCost = Decimal(orderTotalCost)
+            order.save()
             pass
     if "orderLocation" in request.POST:
         request.session["orderLocation"] = request.POST["orderLocation"]
@@ -233,10 +265,12 @@ def confirmOrder(request):
     # we might also need to clean up expired unfulfilled shared orders and user orders here
     orderSaved = False
     allSharedOrders = SharedOrder.objects.all()
+    selectedSharedOrder = None
     for curSharedOrder in allSharedOrders:
         if curSharedOrder.status == "unfulfilled" and \
                 curSharedOrder.restaurantID == order.restaurantID and \
                 curSharedOrder.pickupPoint == order.location:
+            selectedSharedOrder = curSharedOrder
             order.sharedOrderID = curSharedOrder
             order.save()
             orderSaved = True
@@ -244,13 +278,26 @@ def confirmOrder(request):
     if not orderSaved:
         newSharedOrder = SharedOrder(time='2006-10-25 14:30:59', restaurantID=order.restaurantID, status="unfulfilled", pickupPoint=order.location)
         newSharedOrder.save()
+        selectedSharedOrder = newSharedOrder
         order.sharedOrderID = newSharedOrder
         order.save()
         orderSaved = True
+
+    confirmOrderHelper(selectedSharedOrder)
+
     user = request.user
     currentOrders = currentOrdersHelper(user)
     return render(request, 'polls/currentOrders.html', {'currentOrders': currentOrders, 'user':user})
 
+
+def confirmOrderHelper(sharedOrder):
+    restaurant = Restaurant.objects.get(pk=sharedOrder.restaurantID)
+    currentTotal = 0
+    for order in sharedOrder.order_set.all():
+        currentTotal += order.totalCost
+    if currentTotal >= restaurant.minOrderFee:
+        sharedOrder.status = "fulfilled"
+        sharedOrder.save()
 
 def cancelOrder(request):
     orderId = request.session["orderId"]

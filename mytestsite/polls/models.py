@@ -36,6 +36,7 @@ class SharedOrder(models.Model):
 class Order(models.Model):
     location = models.CharField(max_length=100)
     time = models.DateTimeField()
+    totalCost = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     userID = models.IntegerField(default=1)
     restaurantID = models.IntegerField(default=1)
     sharedOrderID = models.ForeignKey(SharedOrder, on_delete=models.CASCADE, default=1, null=True)
@@ -51,6 +52,7 @@ class Restaurant(models.Model):
     priceRange = models.CharField(max_length=30)
     hour = models.CharField(max_length=30)
     image = models.CharField(max_length=1000, null=True)
+    minOrderFee = models.DecimalField(max_digits=5, decimal_places=2, default=20.00)
 
     def __str__(self):
         return self.name + ' - ' + self.type
