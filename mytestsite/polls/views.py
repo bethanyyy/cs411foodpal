@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 
-from .models import Restaurant, FoodItem, Order, Include
+from .models import Restaurant, FoodItem, Order, Include, Preference, SharedOrder
 from .forms import SignUpForm
 
 # Create your views here.
@@ -14,6 +14,7 @@ from .forms import SignUpForm
 def home(request):
     return render(request,'polls/index.html')
 
+
 def profile(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -21,15 +22,17 @@ def profile(request):
     # get all food types that appear in all preference relations
     # or just hard code this line
     allTypes = ['Chinese', 'Japanese', 'Korean', 'Thai', 'Breakfast and Brunch', 'Coffee']
-    # TODO: get user's preference from the preference relation
-    preferences = ['Chinese', 'Korean'] 
+    # TODO: get user's preference from the preference relation - clear
+    profileUserID = user.id
+    preferences = Preference.objects.filter(userID=profileUserID).values_list('cuisineName', flat=True)
     return render(request, 'polls/profile.html',{'user':user, 'allTypes':allTypes, 'preferences':preferences})
 
+
 def restaurants(request):
-    allRestaurant = Restaurant.objects.all()
+    allRestaurant = Restaurant.objects
         
     # declare data that will be sent to front end
-    filteredRestaurant = allRestaurant
+    filteredRestaurant = allRestaurant.all()
     orderLocation = ""
     preferences = []
     # get all food types that appear in all preference relations 
@@ -38,13 +41,14 @@ def restaurants(request):
     
     # fill in data if available
     if request.user.is_authenticated:
-        # TODO: get user's preference from the preference relation
+        # TODO: get user's preference from the preference relation - clear
         user = request.user
-        preferences = ['Chinese', 'Korean'] 
+        profileUserID = user.id
+        preferences = Preference.objects.filter(userID=profileUserID).values_list('cuisineName', flat=True)
         
     if request.method == "GET":
-        if ("address" in request.GET) and (request.GET["address"] != "Type your address here"):
-            orderLocation = request.GET["address"]
+        if ("orderLocation" in request.GET) and (request.GET["orderLocation"] != "Type your address here"):
+            orderLocation = request.GET["orderLocation"]
             
         #if directed here from index page
         if "foodType" in request.GET: 
@@ -60,7 +64,12 @@ def restaurants(request):
                     temp.append(foodType)
             if temp:
                 preferences = temp
-        # TODO: filter restaurants here according to preferences(if exists) and order history
+        # TODO: filter restaurants here according to preferences(if exists) and order history - clear
+        if (preferences):
+            filteredRestaurant = allRestaurant.none()
+            for pref in preferences:
+                resultRestaurant = allRestaurant.filter(type=pref)
+                filteredRestaurant = filteredRestaurant | resultRestaurant
         # filter based on orderLocation(if exists)
         # use Python requests with Google Map API to convert street address to latitude/longitude (https://developers.google.com/maps/documentation/geocoding/intro)
         # could also install python library for geocoding library(e.g. geocoder)
@@ -69,6 +78,7 @@ def restaurants(request):
     request.session["orderLocation"] = orderLocation
     return render(request, 'polls/restaurants.html', {'restaurants': filteredRestaurant, 'orderLocation': orderLocation, 'allTypes':allTypes, 'preferences':preferences})
 
+
 def restaurantDetails(request):
     restaurantId = request.POST["restaurantId"]
     restaurantInfo = Restaurant.objects.filter(id=restaurantId).values()[0]
@@ -76,6 +86,7 @@ def restaurantDetails(request):
     restaurantInfo['menu'] = restaurantDetail
     request.session["restaurantId"] = restaurantId
     return render(request,'polls/restaurantDetails.html', {'restaurantDetails': restaurantInfo})
+
 
 def finishOrder(request):
     if not request.user.is_authenticated:
@@ -87,22 +98,25 @@ def finishOrder(request):
         orderLocation = request.session["orderLocation"]
     orderTime = timezone.now()
     orderUser = request.user
-    order = Order(location=orderLocation, time=orderTime, userID=orderUser.id, sharedOrderID=0)
+    restaurantId = request.session["restaurantId"]
+    order = Order.objects.create(location=orderLocation, time=orderTime, userID=orderUser.id, restaurantID=restaurantId, sharedOrderID_id=None)
     order.save()
     request.session["orderId"] = order.pk
-    restaurantId = request.session["restaurantId"]
+    print(request.POST)
     for key in request.POST:
         if  key != "csrfmiddlewaretoken" and request.POST[key] != '0':
             #should look up food items according to the ids here
             foodItem = FoodItem.objects.get(pk=key)
             foodName = foodItem.foodName
+            foodId = foodItem.id
             foodPrice = foodItem.price
             foodQuantity = int(request.POST[key])
-            include = Include(foodName=foodName, restaurantID=restaurantId, time=orderTime, orderLocation=orderLocation, userID=orderUser.id, quantity=foodQuantity)
+            include = Include(foodID=foodId, orderID=order.pk, quantity=foodQuantity)
             include.save()
-            data.append({'foodName':foodName, 'quantity':request.POST[key], 'price':foodPrice, 'includeId':include.id})
+            data.append({'foodName':foodName, 'quantity':request.POST[key], 'price':foodPrice, 'includeId':include.id, 'foodId':foodId})
     restaurant = Restaurant.objects.get(id=restaurantId)
     return render(request, 'polls/finishOrder.html', {'orderItems':data, 'restaurantName':restaurant.name, "orderLocation":orderLocation})
+
 
 def currentOrders(request):
     if not request.user.is_authenticated:
@@ -111,27 +125,45 @@ def currentOrders(request):
     currentOrders = currentOrdersHelper(user)
     return render(request, 'polls/currentOrders.html', {'currentOrders': currentOrders, 'user':user})
 
+
 def currentOrdersHelper(user):
     # dummy data
-    # TODO: compile data to send by finding orders which belong to unfulfilled SharedOrders and the food items included
-    
-    currentOrders = [
-        {'id':1, 'time':'ordertimexxx', 'restaurantName':'rest name xxx', 
-         'restaurantLocation': 'restaurant location ccc', 'restaurantPriceRange': 'SS', 'location': 'order location',
-         'sharedOrder': 11, 'pickUpLoc': 'temp pickup loc', 'status': 'unfulfilled',
-         'items': [
-             {'foodName':'A', 'quantity':1, 'price': 12},
-             {'foodName':'B', 'quantity':2, 'price': 9}
-         ]},
-        {'id':2, 'time':'ordertimeyyy', 'restaurantName':'rest name yyy', 
-         'restaurantLocation': 'restaurant location ddd', 'restaurantPriceRange': 'SSS', 'location': 'order location ww',
-         'sharedOrder': 12, 'pickUpLoc': 'temp pickup loc mmm', 'status': 'unfulfilled',
-         'items': [
-             {'foodName':'C', 'quantity':3, 'price': 2}
-         ]}
-    ]
+    # TODO: compile data to send by finding orders which belong to unfulfilled SharedOrders and the food items included - clear
+
+    currentOrders = []
+
+    idx = 0
+    allUserOrders = Order.objects.filter(userID=user.id).all()
+    for userOrder in allUserOrders:
+        # print(userOrder.sharedOrderID.id)
+        sharedOrder = userOrder.sharedOrderID
+        if sharedOrder.status == "unfulfilled":
+            idx += 1
+            restaurant = Restaurant.objects.get(pk=userOrder.restaurantID)
+            restaurantName = restaurant.name
+            restaurantLocation = restaurant.location
+            restaurantPriceRange = restaurant.priceRange
+
+            orderLocation = userOrder.location
+            orderId = userOrder.id
+            foodItems = []
+            includeInstances = Include.objects.filter(orderID=orderId)
+            for includeInstance in includeInstances:
+                food = FoodItem.objects.get(pk=includeInstance.foodID)
+                foodItem = {'foodName':food.foodName, 'quantity':includeInstance.quantity, 'price': food.price}
+                foodItems.append(foodItem)
+
+            sharedOrderNum = sharedOrder.id
+            pickUpLoc = sharedOrder.pickupPoint
+            sharedOrderStatus = sharedOrder.status
+            curOrder = {'id':idx, 'time':userOrder.time, 'restaurantName':restaurantName,
+                        'restaurantLocation': restaurantLocation, 'restaurantPriceRange': restaurantPriceRange, 'location': orderLocation,
+                        'sharedOrder': sharedOrderNum, 'pickUpLoc': pickUpLoc, 'status': sharedOrderStatus,
+                        'items': foodItems}
+            currentOrders.append(curOrder)
     
     return currentOrders
+
 
 def updateItem(request):
     if not request.user.is_authenticated:
@@ -145,6 +177,7 @@ def updateItem(request):
     else:
         raise Http404
 
+
 def deleteItem(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -155,6 +188,7 @@ def deleteItem(request):
         return HttpResponse("Successful deleted Include instance: "+str(request.POST['includeId']))
     else:
         raise Http404
+
 
 def signup(request):
     if request.method == 'POST':
@@ -170,6 +204,7 @@ def signup(request):
         form = SignUpForm()
     return render(request, 'polls/signup.html', {'form': form})
 
+
 def orderHistory(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -177,37 +212,66 @@ def orderHistory(request):
     orders = Order.objects.filter(userID=orderUser.id)
     return render(request, 'polls/orderHistory.html',{'orders':orders})
 
+
 def confirmOrder(request):
     orderId = request.session["orderId"]
     for key in request.POST:
-        if  key != "csrfmiddlewaretoken" and request.POST[key] != '0':
-            # TODO: update food item quantity(same as in finishOrder)
+        if  key != "csrfmiddlewaretoken" and key != "orderLocation" and request.POST[key] != '0':
+            # TODO: update food item quantity(same as in finishOrder) - clear
+            includeInstance = Include.objects.get(id=key)
+            includeInstance.quantity = int(request.POST[key])
+            includeInstance.save()
             pass
     if "orderLocation" in request.POST:
         request.session["orderLocation"] = request.POST["orderLocation"]
-        # TODO: then update orderLocation in database with orderId
-        
-    # TODO: shared order finding/updating process goes here
+        print(request.POST["orderLocation"])
+        # TODO: then update orderLocation in database with orderId - clear
+        order = Order.objects.get(id=orderId)
+        order.location = request.POST["orderLocation"]
+        order.save()
+    # TODO: shared order finding/updating process goes here - calculate distance and fulfill status
     # we might also need to clean up expired unfulfilled shared orders and user orders here
-    
+    orderSaved = False
+    allSharedOrders = SharedOrder.objects.all()
+    for curSharedOrder in allSharedOrders:
+        if curSharedOrder.status == "unfulfilled" and \
+                curSharedOrder.restaurantID == order.restaurantID and \
+                curSharedOrder.pickupPoint == order.location:
+            order.sharedOrderID = curSharedOrder
+            order.save()
+            orderSaved = True
+            break
+    if not orderSaved:
+        newSharedOrder = SharedOrder(time='2006-10-25 14:30:59', restaurantID=order.restaurantID, status="unfulfilled", pickupPoint=order.location)
+        newSharedOrder.save()
+        order.sharedOrderID = newSharedOrder
+        order.save()
+        orderSaved = True
     user = request.user
     currentOrders = currentOrdersHelper(user)
     return render(request, 'polls/currentOrders.html', {'currentOrders': currentOrders, 'user':user})
 
+
 def cancelOrder(request):
     orderId = request.session["orderId"]
     Order.objects.filter(id=orderId).delete()
-    # TODO: delete Include records of the food items in this order using orderId here
-    
+    # TODO: delete Include records of the food items in this order using orderId here - clear
+    Include.objects.filter(orderID=orderId).delete()
     return render(request, 'polls/index.html')
+
 
 def updatePrefs(request):
     if not request.user.is_authenticated:
         return redirect('login')
     if request.method == "POST":
         orderUser = request.user
-        newPrefs = request.POST.getlist("updatedPrefs")
-        # TODO: update the preference database
+        newPrefs = request.POST.getlist("updatedPrefs[]")
+        # TODO: update the preference database - clear
+        orderUserID = orderUser.id
+        Preference.objects.filter(userID=orderUserID).delete()
+        for newPref in newPrefs:
+            preference = Preference(userID=orderUserID, cuisineName=newPref)
+            preference.save()
         return HttpResponse("Successful updated preferences")
     else:
         raise Http404
