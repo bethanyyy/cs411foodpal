@@ -98,12 +98,13 @@ def finishOrder(request):
     
     data = []
     orderLocation = ""
+    orderTotal = 0.00
     if "orderLocation" in request.session:
         orderLocation = request.session["orderLocation"]
     orderTime = timezone.now()
     orderUser = request.user
     restaurantId = request.session["restaurantId"]
-    order = Order.objects.create(location=orderLocation, time=orderTime, totalCost=0.00, userID=orderUser.id, restaurantID=restaurantId, sharedOrderID_id=None)
+    order = Order.objects.create(location=orderLocation, time=orderTime, totalCost=orderTotal, userID=orderUser.id, restaurantID=restaurantId, sharedOrderID_id=None)
     order.save()
     request.session["orderId"] = order.pk
 
