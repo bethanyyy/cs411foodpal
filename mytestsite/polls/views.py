@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from decimal import Decimal
 from geopy.geocoders import Nominatim
 from geopy.distance import vincenty
+import datetime
 
 from .models import Restaurant, FoodItem, Order, Include, Preference, SharedOrder
 from .forms import SignUpForm
@@ -144,7 +145,8 @@ def currentOrdersHelper(user):
     allUserOrders = Order.objects.filter(userID=user.id).all()
     for userOrder in allUserOrders:
         sharedOrder = userOrder.sharedOrderID
-        if sharedOrder is not None and sharedOrder.status == "unfulfilled":
+        # only display orders made within the last hour
+        if sharedOrder is not None and (timezone.now() - sharedOrder.time).total_seconds() < 3600.0:
             idx += 1
             restaurant = Restaurant.objects.get(pk=userOrder.restaurantID)
             restaurantName = restaurant.name
@@ -263,26 +265,27 @@ def confirmOrder(request):
         order = Order.objects.get(id=orderId)
         order.location = request.POST["orderLocation"]
         order.save()
-    # TODO: shared order finding/updating process goes here - calculate distance and fulfill status
+    # TODO: shared order finding/updating process goes here - clear
     # we might also need to clean up expired unfulfilled shared orders and user orders here
 
     orderSaved = False
     allSharedOrders = SharedOrder.objects.all()
     selectedSharedOrder = None
     for curSharedOrder in allSharedOrders:
-        if curSharedOrder.status == "unfulfilled" and \
-                curSharedOrder.restaurantID == order.restaurantID and \
-                calculateDistance(curSharedOrder, order):
+        if curSharedOrder.status == "unfulfilled":
+            if (timezone.now() - curSharedOrder.time).total_seconds() > 3600.0:
+                curSharedOrder.status = "expired"
+                curSharedOrder.save()
+            elif curSharedOrder.restaurantID == order.restaurantID and calculateDistance(curSharedOrder, order):
+                calculateMidPt(curSharedOrder, order)
 
-            calculateMidPt(curSharedOrder, order)
-
-            selectedSharedOrder = curSharedOrder
-            order.sharedOrderID = curSharedOrder
-            order.save()
-            orderSaved = True
-            break
+                selectedSharedOrder = curSharedOrder
+                order.sharedOrderID = curSharedOrder
+                order.save()
+                orderSaved = True
+                break
     if not orderSaved:
-        newSharedOrder = SharedOrder(time='2006-10-25 14:30:59', restaurantID=order.restaurantID, status="unfulfilled", pickupPoint=order.location)
+        newSharedOrder = SharedOrder(time=timezone.now(), restaurantID=order.restaurantID, status="unfulfilled", pickupPoint=order.location)
         newSharedOrder.save()
         selectedSharedOrder = newSharedOrder
         order.sharedOrderID = newSharedOrder
@@ -320,12 +323,8 @@ def calculateDistance(sharedOrder, newOrder):
     newOrderAddr = geolocator.geocode(newOrder.location)
     newOrderLoc = (newOrderAddr.latitude, newOrderAddr.longitude)
 
-    print(curPickupLoc)
-    print(newOrderLoc)
     distance = vincenty(curPickupLoc, newOrderLoc).miles
-    print("distance")
-    print(distance)
-    if distance < 4.0:
+    if distance < 2.0:
         return True
 
 
