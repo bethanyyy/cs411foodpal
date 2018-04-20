@@ -5,6 +5,8 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
+from geopy.geocoders import Nominatim
+from geopy.distance import vincenty
 
 from .models import Restaurant, FoodItem, Order, Include, Preference, SharedOrder
 from .forms import SignUpForm
@@ -263,13 +265,17 @@ def confirmOrder(request):
         order.save()
     # TODO: shared order finding/updating process goes here - calculate distance and fulfill status
     # we might also need to clean up expired unfulfilled shared orders and user orders here
+
     orderSaved = False
     allSharedOrders = SharedOrder.objects.all()
     selectedSharedOrder = None
     for curSharedOrder in allSharedOrders:
         if curSharedOrder.status == "unfulfilled" and \
                 curSharedOrder.restaurantID == order.restaurantID and \
-                curSharedOrder.pickupPoint == order.location:
+                calculateDistance(curSharedOrder, order):
+
+            calculateMidPt(curSharedOrder, order)
+
             selectedSharedOrder = curSharedOrder
             order.sharedOrderID = curSharedOrder
             order.save()
@@ -283,14 +289,47 @@ def confirmOrder(request):
         order.save()
         orderSaved = True
 
-    confirmOrderHelper(selectedSharedOrder)
+    checkMinOrderFee(selectedSharedOrder)
 
     user = request.user
     currentOrders = currentOrdersHelper(user)
     return render(request, 'polls/currentOrders.html', {'currentOrders': currentOrders, 'user':user})
 
 
-def confirmOrderHelper(sharedOrder):
+def calculateMidPt(sharedOrder, newOrder):
+    geolocator = Nominatim()
+    curPickupPoint = geolocator.geocode(sharedOrder.pickupPoint)
+    curPickupLoc = (curPickupPoint.latitude, curPickupPoint.longitude)
+    newOrderAddr = geolocator.geocode(newOrder.location)
+    newOrderLoc = (newOrderAddr.latitude, newOrderAddr.longitude)
+
+    centerLat = 0.5 * (curPickupPoint.latitude + newOrderAddr.latitude)
+    centerLong = 0.5 * (curPickupPoint.longitude + newOrderAddr.longitude)
+
+    center = str(centerLat) + ", " + str(centerLong)
+    centerLoc = geolocator.reverse(center)
+
+    sharedOrder.pickupPoint = centerLoc.address
+    sharedOrder.save()
+
+
+def calculateDistance(sharedOrder, newOrder):
+    geolocator = Nominatim()
+    curPickupPoint = geolocator.geocode(sharedOrder.pickupPoint)
+    curPickupLoc = (curPickupPoint.latitude, curPickupPoint.longitude)
+    newOrderAddr = geolocator.geocode(newOrder.location)
+    newOrderLoc = (newOrderAddr.latitude, newOrderAddr.longitude)
+
+    print(curPickupLoc)
+    print(newOrderLoc)
+    distance = vincenty(curPickupLoc, newOrderLoc).miles
+    print("distance")
+    print(distance)
+    if distance < 4.0:
+        return True
+
+
+def checkMinOrderFee(sharedOrder):
     restaurant = Restaurant.objects.get(pk=sharedOrder.restaurantID)
     currentTotal = 0
     for order in sharedOrder.order_set.all():
