@@ -28,6 +28,7 @@ def profile(request):
     allTypes = ['Chinese', 'Japanese', 'Korean', 'Thai', 'Breakfast and Brunch', 'Coffee']
     # TODO: get user's preference from the preference relation - clear
     profileUserID = user.id
+    # SQL
     preferences = Preference.objects.filter(userID=profileUserID).values_list('cuisineName', flat=True)
     return render(request, 'polls/profile.html',{'user':user, 'allTypes':allTypes, 'preferences':preferences})
 
@@ -48,6 +49,7 @@ def restaurants(request):
         # TODO: get user's preference from the preference relation - clear
         user = request.user
         profileUserID = user.id
+        # SQL
         preferences = Preference.objects.filter(userID=profileUserID).values_list('cuisineName', flat=True)
         
     if request.method == "GET":
@@ -72,6 +74,7 @@ def restaurants(request):
         if (preferences):
             filteredRestaurant = allRestaurant.none()
             for pref in preferences:
+                # SQL
                 resultRestaurant = allRestaurant.filter(type=pref)
                 filteredRestaurant = filteredRestaurant | resultRestaurant
         # filter based on orderLocation(if exists)
@@ -85,7 +88,9 @@ def restaurants(request):
 
 def restaurantDetails(request):
     restaurantId = request.POST["restaurantId"]
+    # SQL
     restaurantInfo = Restaurant.objects.filter(id=restaurantId).values()[0]
+    # SQL
     restaurantDetail = Restaurant.objects.get(pk=restaurantId).fooditem_set.all()
     restaurantInfo['menu'] = restaurantDetail
     request.session["restaurantId"] = restaurantId
@@ -104,6 +109,7 @@ def finishOrder(request):
     orderTime = timezone.now()
     orderUser = request.user
     restaurantId = request.session["restaurantId"]
+    # SQL
     order = Order.objects.create(location=orderLocation, time=orderTime, totalCost=orderTotal, userID=orderUser.id, restaurantID=restaurantId, sharedOrderID_id=None)
     order.save()
     request.session["orderId"] = order.pk
@@ -113,17 +119,21 @@ def finishOrder(request):
     for key in request.POST:
         if  key != "csrfmiddlewaretoken" and request.POST[key] != '0':
             #should look up food items according to the ids here
+            # SQL
             foodItem = FoodItem.objects.get(pk=key)
             foodName = foodItem.foodName
             foodId = foodItem.id
             foodPrice = foodItem.price
             foodQuantity = int(request.POST[key])
             orderTotalCost += float(foodPrice) * foodQuantity
+            # SQL
             include = Include(foodID=foodId, orderID=order.pk, quantity=foodQuantity)
             include.save()
             data.append({'foodName':foodName, 'quantity':request.POST[key], 'price':foodPrice, 'includeId':include.id, 'foodId':foodId})
     order.totalCost = Decimal(orderTotalCost)
+    # SQL
     order.save()
+    # SQL
     restaurant = Restaurant.objects.get(id=restaurantId)
     return render(request, 'polls/finishOrder.html', {'orderItems':data, 'restaurantName':restaurant.name, "orderLocation":orderLocation})
 
@@ -142,6 +152,7 @@ def currentOrdersHelper(user):
 
     currentOrders = []
 
+    # SQL
     allUserOrders = Order.objects.filter(userID=user.id).all()
     for userOrder in allUserOrders:
         sharedOrder = userOrder.sharedOrderID
@@ -155,6 +166,7 @@ def currentOrdersHelper(user):
 
 def getOrderInfo(userOrder):
     sharedOrder = userOrder.sharedOrderID
+    # SQL
     restaurant = Restaurant.objects.get(pk=userOrder.restaurantID)
     restaurantName = restaurant.name
     restaurantLocation = restaurant.location
@@ -164,8 +176,10 @@ def getOrderInfo(userOrder):
     orderUrl = orderLocation.strip().replace(' ','+')
     orderId = userOrder.id
     foodItems = []
+    # SQL
     includeInstances = Include.objects.filter(orderID=orderId)
     for includeInstance in includeInstances:
+        # SQL
         food = FoodItem.objects.get(pk=includeInstance.foodID)
         totalPrice = food.price*includeInstance.quantity
         foodItem = {'foodName':food.foodName, 'quantity':includeInstance.quantity, 'price': food.price, 'totalPrice': totalPrice}
@@ -187,18 +201,23 @@ def updateItem(request):
         return redirect('login')
     
     if request.method == "POST":
+        # SQL
         includeInstance = Include.objects.get(pk=int(request.POST['includeId']))
         originalQuantity = includeInstance.quantity
         includeInstance.quantity=int(request.POST['quantity'])
+        # SQL
         includeInstance.save()
 
+        # SQL
         order = Order.objects.get(id=includeInstance.orderID)
         print(order)
         orderTotalCost = float(order.totalCost)
+        # SQL
         foodPrice = FoodItem.objects.get(pk=includeInstance.foodID).price
         orderTotalCost -= float(foodPrice) * float(originalQuantity)
         orderTotalCost += float(foodPrice) * includeInstance.quantity
         order.totalCost = Decimal(orderTotalCost)
+        # SQL
         order.save()
 
         return HttpResponse("Successful update on Include instance: "+str(includeInstance.pk))
@@ -211,15 +230,20 @@ def deleteItem(request):
         return redirect('login')
     
     if request.method == "POST":
+        # SQL
         includeInstance = Include.objects.get(pk=int(request.POST['includeId']))
         originalQuantity = includeInstance.quantity
+        # SQL
         includeInstance.delete()
 
+        # SQL
         order = Order.objects.get(id=includeInstance.orderID)
         orderTotalCost = float(order.totalCost)
+        # SQL
         foodPrice = FoodItem.objects.get(pk=includeInstance.foodID).price
         orderTotalCost -= float(foodPrice) * float(originalQuantity)
         order.totalCost = Decimal(orderTotalCost)
+        # SQL
         order.save()
 
         return HttpResponse("Successful deleted Include instance: "+str(request.POST['includeId']))
@@ -246,6 +270,7 @@ def orderHistory(request):
     if not request.user.is_authenticated:
         return redirect('login')
     orderUser = request.user
+    # SQL
     orders = Order.objects.filter(userID=orderUser.id)
     return render(request, 'polls/orderHistory.html',{'orders':sorted(orders, reverse=True, key=lambda temp:temp.time)})
 
@@ -261,20 +286,26 @@ def confirmOrder(request):
     for key in request.POST:
         if  key != "csrfmiddlewaretoken" and key != "orderLocation" and request.POST[key] != '0':
             # TODO: update food item quantity(same as in finishOrder) - clear
+            # SQL
             includeInstance = Include.objects.get(id=key)
             includeInstance.quantity = int(request.POST[key])
+            # SQL
             includeInstance.save()
 
+            # SQL
             order = Order.objects.get(id=orderId)
+            # SQL
             foodPrice = FoodItem.objects.get(pk=includeInstance.foodID).price
             orderTotalCost += float(foodPrice) * includeInstance.quantity
             order.totalCost = Decimal(orderTotalCost)
+            # SQL
             order.save()
             
     if "orderLocation" in request.POST:
         request.session["orderLocation"] = request.POST["orderLocation"]
         print(request.POST["orderLocation"])
         # TODO: then update orderLocation in database with orderId - clear
+        # SQL
         order = Order.objects.get(id=orderId)
         order.location = request.POST["orderLocation"]
         order.save()
@@ -288,21 +319,25 @@ def confirmOrder(request):
         if curSharedOrder.status == "unfulfilled":
             if (timezone.now() - curSharedOrder.time).total_seconds() > 3600.0:
                 curSharedOrder.status = "expired"
+                # SQL
                 curSharedOrder.save()
             elif curSharedOrder.restaurantID == order.restaurantID and calculateDistance(curSharedOrder, order):
                 calculateMidPt(curSharedOrder, order)
 
                 selectedSharedOrder = curSharedOrder
                 order.sharedOrderID = curSharedOrder
+                # SQL
                 order.save()
                 orderSaved = True
                 break
                 
     if not orderSaved:
+        # SQL
         newSharedOrder = SharedOrder(time=timezone.now(), restaurantID=order.restaurantID, status="unfulfilled", pickupPoint=order.location)
         newSharedOrder.save()
         selectedSharedOrder = newSharedOrder
         order.sharedOrderID = newSharedOrder
+        # SQL
         order.save()
         orderSaved = True
 
@@ -333,6 +368,7 @@ def calculateMidPt(sharedOrder, newOrder):
     centerLoc = geolocator.reverse(center)
 
     sharedOrder.pickupPoint = centerLoc.address
+    # SQL
     sharedOrder.save()
 
 
@@ -350,18 +386,23 @@ def calculateDistance(sharedOrder, newOrder):
         return False
 
 def checkMinOrderFee(sharedOrder):
+    # SQL
     restaurant = Restaurant.objects.get(pk=sharedOrder.restaurantID)
     currentTotal = 0.00
+    # SQL
     for order in sharedOrder.order_set.all():
         currentTotal += float(order.totalCost)
     if currentTotal >= float(restaurant.minOrderFee):
         sharedOrder.status = "fulfilled"
+        # SQL
         sharedOrder.save()
 
 def cancelOrder(request):
     orderId = request.session["orderId"]
+    # SQL
     Order.objects.filter(id=orderId).delete()
     # TODO: delete Include records of the food items in this order using orderId here - clear
+    # SQL
     Include.objects.filter(orderID=orderId).delete()
     return render(request, 'polls/index.html')
 
@@ -374,9 +415,11 @@ def updatePrefs(request):
         newPrefs = request.POST.getlist("updatedPrefs[]")
         # TODO: update the preference database - clear
         orderUserID = orderUser.id
+        # SQL
         Preference.objects.filter(userID=orderUserID).delete()
         for newPref in newPrefs:
             preference = Preference(userID=orderUserID, cuisineName=newPref)
+            # SQL
             preference.save()
         return HttpResponse("Successful updated preferences")
     else:
