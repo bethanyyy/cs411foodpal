@@ -11,6 +11,7 @@
             <th>Order ID</th>
             <th>Location</th>
             <th>Time</th>
+            <th>Details</th>
         </tr>
     </thead>
         {% for item in orders %}
@@ -18,6 +19,7 @@
             <td>{{ item.id }}</td>
             <td>{{ item.location }}</td>
             <td>{{ item.time }}</td>
+            <td><a href="{% url 'orderDetails' item.id %}">See Details</a></td>
         </tr>
         {% endfor %}
     </table>

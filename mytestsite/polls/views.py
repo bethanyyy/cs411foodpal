@@ -142,38 +142,45 @@ def currentOrdersHelper(user):
 
     currentOrders = []
 
-    idx = 0
     allUserOrders = Order.objects.filter(userID=user.id).all()
     for userOrder in allUserOrders:
         sharedOrder = userOrder.sharedOrderID
         # only display orders made within the last hour
+        curOrder = {}
         if sharedOrder is not None and (timezone.now() - sharedOrder.time).total_seconds() < 3600.0:
-            idx += 1
-            restaurant = Restaurant.objects.get(pk=userOrder.restaurantID)
-            restaurantName = restaurant.name
-            restaurantLocation = restaurant.location
-            restaurantPriceRange = restaurant.priceRange
-
-            orderLocation = userOrder.location
-            orderId = userOrder.id
-            foodItems = []
-            includeInstances = Include.objects.filter(orderID=orderId)
-            for includeInstance in includeInstances:
-                food = FoodItem.objects.get(pk=includeInstance.foodID)
-                foodItem = {'foodName':food.foodName, 'quantity':includeInstance.quantity, 'price': food.price}
-                foodItems.append(foodItem)
-
-            sharedOrderNum = sharedOrder.id
-            pickUpLoc = sharedOrder.pickupPoint
-            sharedOrderStatus = sharedOrder.status
-            curOrder = {'id':idx, 'time':userOrder.time, 'restaurantName':restaurantName,
-                        'restaurantLocation': restaurantLocation, 'restaurantPriceRange': restaurantPriceRange, 'location': orderLocation,
-                        'sharedOrder': sharedOrderNum, 'pickUpLoc': pickUpLoc, 'status': sharedOrderStatus,
-                        'items': foodItems}
+            curOrder = getOrderInfo(userOrder)
             currentOrders.append(curOrder)
-    
-    return currentOrders
+    return sorted(currentOrders, reverse=True, key = lambda temp: temp['time'])
 
+
+def getOrderInfo(userOrder):
+    sharedOrder = userOrder.sharedOrderID
+    restaurant = Restaurant.objects.get(pk=userOrder.restaurantID)
+    restaurantName = restaurant.name
+    restaurantLocation = restaurant.location
+    minOrderFee = restaurant.minOrderFee
+
+    orderLocation = userOrder.location
+    orderUrl = orderLocation.strip().replace(' ','+')
+    orderId = userOrder.id
+    foodItems = []
+    includeInstances = Include.objects.filter(orderID=orderId)
+    for includeInstance in includeInstances:
+        food = FoodItem.objects.get(pk=includeInstance.foodID)
+        totalPrice = food.price*includeInstance.quantity
+        foodItem = {'foodName':food.foodName, 'quantity':includeInstance.quantity, 'price': food.price, 'totalPrice': totalPrice}
+        foodItems.append(foodItem)
+
+    sharedOrderNum = sharedOrder.id
+    pickUpLoc = sharedOrder.pickupPoint
+    pickUpUrl = pickUpLoc.strip().replace(' ','+')
+    sharedOrderStatus = sharedOrder.status
+    curOrder = {'time':userOrder.time, 'restaurantName':restaurantName,
+                'restaurantLocation': restaurantLocation, 'minOrderFee': minOrderFee, 'location': orderLocation,
+                'sharedOrder': sharedOrderNum, 'pickUpLoc': pickUpLoc, 'status': sharedOrderStatus,
+                'items': foodItems, 'orderTotal':userOrder.totalCost, 'orderUrl':orderUrl, 'pickUpUrl':pickUpUrl}
+    return curOrder
+    
 
 def updateItem(request):
     if not request.user.is_authenticated:
@@ -240,7 +247,12 @@ def orderHistory(request):
         return redirect('login')
     orderUser = request.user
     orders = Order.objects.filter(userID=orderUser.id)
-    return render(request, 'polls/orderHistory.html',{'orders':orders})
+    return render(request, 'polls/orderHistory.html',{'orders':sorted(orders, reverse=True, key=lambda temp:temp.time)})
+
+
+def orderDetails(request, orderId):
+    curOrder = getOrderInfo(Order.objects.get(id=orderId))
+    return render(request, 'polls/orderDetails.html',{'order':curOrder})
 
 
 def confirmOrder(request):
@@ -258,7 +270,7 @@ def confirmOrder(request):
             orderTotalCost += float(foodPrice) * includeInstance.quantity
             order.totalCost = Decimal(orderTotalCost)
             order.save()
-            pass
+            
     if "orderLocation" in request.POST:
         request.session["orderLocation"] = request.POST["orderLocation"]
         print(request.POST["orderLocation"])
@@ -285,6 +297,7 @@ def confirmOrder(request):
                 order.save()
                 orderSaved = True
                 break
+                
     if not orderSaved:
         newSharedOrder = SharedOrder(time=timezone.now(), restaurantID=order.restaurantID, status="unfulfilled", pickupPoint=order.location)
         newSharedOrder.save()
@@ -302,13 +315,19 @@ def confirmOrder(request):
 
 def calculateMidPt(sharedOrder, newOrder):
     geolocator = Nominatim()
-    curPickupPoint = geolocator.geocode(sharedOrder.pickupPoint)
-    curPickupLoc = (curPickupPoint.latitude, curPickupPoint.longitude)
     newOrderAddr = geolocator.geocode(newOrder.location)
-    newOrderLoc = (newOrderAddr.latitude, newOrderAddr.longitude)
+    centerLat = newOrderAddr.latitude
+    centerLong = newOrderAddr.longitude
+    orderCount = 1.0
+    for order in sharedOrder.order_set.all():
+        orderAddr = geolocator.geocode(order.location)
+        centerLat += orderAddr.latitude
+        centerLong += orderAddr.longitude
+        orderCount += 1.0
+    
+    centerLat = centerLat/orderCount
+    centerLong = centerLong/orderCount
 
-    centerLat = 0.5 * (curPickupPoint.latitude + newOrderAddr.latitude)
-    centerLong = 0.5 * (curPickupPoint.longitude + newOrderAddr.longitude)
 
     center = str(centerLat) + ", " + str(centerLong)
     centerLoc = geolocator.reverse(center)
@@ -327,14 +346,15 @@ def calculateDistance(sharedOrder, newOrder):
     distance = vincenty(curPickupLoc, newOrderLoc).miles
     if distance < 2.0:
         return True
-
+    else:
+        return False
 
 def checkMinOrderFee(sharedOrder):
     restaurant = Restaurant.objects.get(pk=sharedOrder.restaurantID)
-    currentTotal = 0
+    currentTotal = 0.00
     for order in sharedOrder.order_set.all():
-        currentTotal += order.totalCost
-    if currentTotal >= restaurant.minOrderFee:
+        currentTotal += float(order.totalCost)
+    if currentTotal >= float(restaurant.minOrderFee):
         sharedOrder.status = "fulfilled"
         sharedOrder.save()
 

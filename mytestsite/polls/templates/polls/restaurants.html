@@ -32,6 +32,9 @@
                                 </div>
                             </div>
                         {% endfor %}
+                        <button type="button" class="btn btn-outline-primary allBtn">
+                            Choose all food types
+                        </button>
                     </div>
                     <div class="card-footer">
                         <button type="button submit" class="btn btn-primary updateBtn">
@@ -76,6 +79,10 @@ $(".restaurantLink").click(function () {
     console.log("enter restaurantDetails");
     $(this).parent().submit();
     return false;
+});
+    
+$(".allBtn").click(function () {
+    $('input:checkbox').prop('checked', "checked");
 });
 </script>
 {% endblock %}

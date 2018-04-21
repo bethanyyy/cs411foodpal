@@ -79,15 +79,9 @@
     </style>
 
 
-<h1 class="my-4">Your Current Orders
+<h1 class="my-4">Your Order On {{order.time}}
 </h1>
-{% if currentOrders %}
-<p style="font-size:1vw" color="black" >You will be ready to order once the SharedOrders become fulfilled!</p>
-{% else %}
-<p style="font-size:1vw" color="black" >You don't have any orders within this hour</p>
-{% endif %}
 
-{% for order in currentOrders %}
 <div class="invoice-box">
     <table cellpadding="0" cellspacing="0">
         <tr class="top">
@@ -161,6 +155,5 @@
         
     </table>
 </div>
-{% endfor %}
 
 {% endblock %}
