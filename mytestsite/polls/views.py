@@ -339,7 +339,7 @@ def orderDetails(request, orderId):
 
 def confirmOrder(request):
     orderId = request.session["orderId"]
-    order = Order.objects.get(id=orderId)
+    order = Order.objects.raw('SELECT * FROM polls_order WHERE id = %s', [orderId])[0]
     orderTotalCost = 0.00
     cursor = connection.cursor()
     cursor.execute('UPDATE polls_order SET totalCost = %s WHERE id = %s', [Decimal(orderTotalCost), orderId])
@@ -369,6 +369,7 @@ def confirmOrder(request):
         cursor = connection.cursor()
         cursor.execute('UPDATE polls_order SET location = %s WHERE id = %s', [request.POST["orderLocation"], orderId])
         cursor.close()
+        order = Order.objects.raw('SELECT * FROM polls_order WHERE id = %s', [orderId])[0]
 
     # TODO: shared order finding/updating process goes here - clear
     # we might also need to clean up expired unfulfilled shared orders and user orders here
