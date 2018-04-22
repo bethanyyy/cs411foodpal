@@ -83,31 +83,56 @@ def restaurants(request):
                 resultRestaurant = allRestaurant.extra(where=['type = %s'], params=[pref])
                 prefFilteredRestaurant = prefFilteredRestaurant | resultRestaurant
             if ("orderLocation" in request.GET) and (request.GET["orderLocation"] != "Type your address here") and (request.GET["orderLocation"] != ""):
-                filteredRestaurant = filterRestaurants(request.GET["orderLocation"], prefFilteredRestaurant)
+                filteredRestaurant = []
+                orderLocation = request.GET["orderLocation"]
+                geolocator = Nominatim()
+                orderAddr = geolocator.geocode(orderLocation)
+                if (orderAddr != None):
+                    orderLoc = (orderAddr.latitude, orderAddr.longitude)
+                    for restaurant in prefFilteredRestaurant:
+                        restaurantAddr = geolocator.geocode(restaurant.location)
+                        restaurantLoc = (restaurantAddr.latitude, restaurantAddr.longitude)
+                        if vincenty(restaurantLoc, orderLoc).miles < 5.00:
+                            filteredRestaurant.append(restaurant)
+                emptyRest = Restaurant.objects.none()
+                filteredRestaurant = list(chain(emptyRest, filteredRestaurant))
+                # filteredRestaurant = filterRestaurants(request.GET["orderLocation"], prefFilteredRestaurant)
             else:
                 filteredRestaurant = prefFilteredRestaurant
         elif ("orderLocation" in request.GET) and (request.GET["orderLocation"] != "Type your address here") and (request.GET["orderLocation"] != ""):
             allRestaurantList = allRestaurant.raw('SELECT * FROM polls_restaurant')
-            filteredRestaurant = filterRestaurants(request.GET["orderLocation"], allRestaurantList)
+            filteredRestaurant = []
+            geolocator = Nominatim()
+            orderAddr = geolocator.geocode(orderLocation)
+            if (orderAddr != None):
+                orderLoc = (orderAddr.latitude, orderAddr.longitude)
+                for restaurant in allRestaurantList:
+                    restaurantAddr = geolocator.geocode(restaurant.location)
+                    restaurantLoc = (restaurantAddr.latitude, restaurantAddr.longitude)
+                    if vincenty(restaurantLoc, orderLoc).miles < 5.00:
+                        filteredRestaurant.append(restaurant)
+            emptyRest = Restaurant.objects.none()
+            filteredRestaurant = list(chain(emptyRest, filteredRestaurant))
+            # filteredRestaurant = filterRestaurants(request.GET["orderLocation"], allRestaurantList)
         
     request.session["orderLocation"] = orderLocation
     return render(request, 'polls/restaurants.html', {'restaurants': filteredRestaurant, 'orderLocation': orderLocation, 'allTypes':allTypes, 'preferences':preferences})
 
 
-def filterRestaurants(orderLocation, filterRange):
-    filteredRestaurant = []
-    geolocator = Nominatim()
-    orderAddr = geolocator.geocode(orderLocation)
-    if (orderAddr != None):
-        orderLoc = (orderAddr.latitude, orderAddr.longitude)
-        for restaurant in filterRange:
-            restaurantAddr = geolocator.geocode(restaurant.location)
-            restaurantLoc = (restaurantAddr.latitude, restaurantAddr.longitude)
-            if vincenty(restaurantLoc, orderLoc).miles < 5.00:
-                filteredRestaurant.append(restaurant)
-    emptyRest = Restaurant.objects.none()
-    filteredRestaurant = list(chain(emptyRest, filteredRestaurant))
-    return filteredRestaurant
+# def filterRestaurants(orderLocation, filterRange):
+#     filteredRestaurant = []
+#     geolocator = Nominatim()
+#     orderAddr = geolocator.geocode(orderLocation)
+#     if (orderAddr != None):
+#         orderLoc = (orderAddr.latitude, orderAddr.longitude)
+#         for restaurant in filterRange:
+#             restaurantAddr = geolocator.geocode(restaurant.location)
+#             restaurantLoc = (restaurantAddr.latitude, restaurantAddr.longitude)
+#             if vincenty(restaurantLoc, orderLoc).miles < 5.00:
+#                 filteredRestaurant.append(restaurant)
+#     emptyRest = Restaurant.objects.none()
+#     filteredRestaurant = list(chain(emptyRest, filteredRestaurant))
+#     return filteredRestaurant
 
 
 def restaurantDetails(request):
