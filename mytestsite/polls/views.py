@@ -8,6 +8,7 @@ from decimal import Decimal
 from geopy.geocoders import Nominatim
 from geopy.distance import vincenty
 from django.db import connection, transaction
+from itertools import chain
 import datetime
 
 from .models import Restaurant, FoodItem, Order, Include, Preference, SharedOrder
@@ -60,9 +61,6 @@ def restaurants(request):
         preferences = [item[0] for item in cursor.fetchall()]
         
     if request.method == "GET":
-        if ("orderLocation" in request.GET) and (request.GET["orderLocation"] != "Type your address here"):
-            orderLocation = request.GET["orderLocation"]
-            
         #if directed here from index page
         if "foodType" in request.GET: 
             foodType = request.GET["foodType"]
@@ -79,27 +77,47 @@ def restaurants(request):
                 preferences = temp
         # TODO: filter restaurants here according to preferences(if exists) and order history - clear
         if (preferences):
-            filteredRestaurant = allRestaurant.none()
+            prefFilteredRestaurant = allRestaurant.none()
             for pref in preferences:
                 # SQL
                 resultRestaurant = allRestaurant.extra(where=['type = %s'], params=[pref])
-                filteredRestaurant = filteredRestaurant | resultRestaurant
-        # filter based on orderLocation(if exists)
-        # use Python requests with Google Map API to convert street address to latitude/longitude (https://developers.google.com/maps/documentation/geocoding/intro)
-        # could also install python library for geocoding library(e.g. geocoder)
-        # filteredRestaurant = ...
+                prefFilteredRestaurant = prefFilteredRestaurant | resultRestaurant
+            if ("orderLocation" in request.GET) and (request.GET["orderLocation"] != "Type your address here") and (request.GET["orderLocation"] != ""):
+                filteredRestaurant = filterRestaurants(request.GET["orderLocation"], prefFilteredRestaurant)
+            else:
+                filteredRestaurant = prefFilteredRestaurant
+        elif ("orderLocation" in request.GET) and (request.GET["orderLocation"] != "Type your address here") and (request.GET["orderLocation"] != ""):
+            allRestaurantList = allRestaurant.raw('SELECT * FROM polls_restaurant')
+            filteredRestaurant = filterRestaurants(request.GET["orderLocation"], allRestaurantList)
         
     request.session["orderLocation"] = orderLocation
     return render(request, 'polls/restaurants.html', {'restaurants': filteredRestaurant, 'orderLocation': orderLocation, 'allTypes':allTypes, 'preferences':preferences})
 
 
+def filterRestaurants(orderLocation, filterRange):
+    filteredRestaurant = []
+    geolocator = Nominatim()
+    orderAddr = geolocator.geocode(orderLocation)
+    if (orderAddr != None):
+        orderLoc = (orderAddr.latitude, orderAddr.longitude)
+        for restaurant in filterRange:
+            restaurantAddr = geolocator.geocode(restaurant.location)
+            restaurantLoc = (restaurantAddr.latitude, restaurantAddr.longitude)
+            if vincenty(restaurantLoc, orderLoc).miles < 5.00:
+                filteredRestaurant.append(restaurant)
+    emptyRest = Restaurant.objects.none()
+    filteredRestaurant = list(chain(emptyRest, filteredRestaurant))
+    return filteredRestaurant
+
+
 def restaurantDetails(request):
     restaurantId = request.POST["restaurantId"]
-    # SQL
+
     restaurantInfo = cursor.execute('SELECT * FROM polls_restaurant WHERE id = %s', [restaurantId])
     restaurantInfo = dictfetchall(cursor)[0]
-    # SQL
-    restaurantDetail = Restaurant.objects.get(pk=restaurantId).fooditem_set.all()
+
+    restaurantDetail = dictfetchall(cursor.execute('SELECT * FROM polls_fooditem WHERE restaurant_id = %s', [restaurantId]))
+
     restaurantInfo['menu'] = restaurantDetail
     request.session["restaurantId"] = restaurantId
     return render(request,'polls/restaurantDetails.html', {'restaurantDetails': restaurantInfo})
@@ -117,13 +135,10 @@ def finishOrder(request):
     orderTime = timezone.now()
     orderUser = request.user
     restaurantId = request.session["restaurantId"]
-    # SQL
-    # order = Order.objects.create(location=orderLocation, time=orderTime, totalCost=orderTotal, userID=orderUser.id, restaurantID=restaurantId, sharedOrderID_id=None)
-    # order.save()
-    order = cursor.execute('INSERT INTO polls_order(location, time, totalCost, userID, restaurantID) VALUES(%s, %s, %s, %s, %s)', [orderLocation, orderTime, orderTotal, orderUser.id, restaurantId])
+
+    cursor.execute('INSERT INTO polls_order(location, time, totalCost, userID, restaurantID) VALUES(%s, %s, %s, %s, %s)', [orderLocation, orderTime, orderTotal, orderUser.id, restaurantId])
     transaction.commit()
-    print(cursor.lastrowid)
-    print(Order.objects.get(id=cursor.lastrowid).restaurantID)
+
     newOrderId = cursor.lastrowid
     request.session["orderId"] = cursor.lastrowid
 
@@ -132,27 +147,18 @@ def finishOrder(request):
     for key in request.POST:
         if  key != "csrfmiddlewaretoken" and request.POST[key] != '0':
             #should look up food items according to the ids here
-            # SQL
-            foodItem = FoodItem.objects.get(pk=key)
+            foodItem = FoodItem.objects.raw('SELECT * FROM polls_fooditem WHERE id = %s', [key])[0]
             foodName = foodItem.foodName
             foodId = foodItem.id
             foodPrice = foodItem.price
             foodQuantity = int(request.POST[key])
             orderTotalCost += float(foodPrice) * foodQuantity
-            # SQL
-            # include = Include(foodID=foodId, orderID=newOrderId, quantity=foodQuantity)
-            include = cursor.execute('INSERT INTO polls_include(foodID, orderID, quantity) VALUES(%s, %s, %s)', [foodId, newOrderId, foodQuantity])
-            # include.save()
+
+            cursor.execute('INSERT INTO polls_include(foodID, orderID, quantity) VALUES(%s, %s, %s)', [foodId, newOrderId, foodQuantity])
             data.append({'foodName':foodName, 'quantity':request.POST[key], 'price':foodPrice, 'includeId':cursor.lastrowid, 'foodId':foodId})
-    # order = cursor.execute('SELECT * FROM polls_order WHERE id=%s', [newOrderId])
-    # order = dictfetchall(cursor)[0]
-    # order["totalCost"] = Decimal(orderTotalCost)
-    # SQL
     cursor.execute('UPDATE polls_order SET totalCost = %s WHERE id = %s', [Decimal(orderTotalCost), newOrderId])
-    # order.save()
-    # SQL
-    restaurant = Restaurant.objects.get(id=restaurantId)
-    return render(request, 'polls/finishOrder.html', {'orderItems':data, 'restaurantName':restaurant.name, "orderLocation":orderLocation})
+    orderRestaurantName = cursor.execute('SELECT polls_restaurant.name FROM polls_restaurant WHERE id = %s', [restaurantId]).fetchall()[0][0]
+    return render(request, 'polls/finishOrder.html', {'orderItems':data, 'restaurantName':orderRestaurantName, "orderLocation":orderLocation})
 
 
 def currentOrders(request):
@@ -184,8 +190,7 @@ def currentOrdersHelper(user):
 
 def getOrderInfo(userOrder):
     sharedOrder = userOrder.sharedOrderID
-    # SQL
-    # restaurant = Restaurant.objects.get(pk=userOrder.restaurantID)
+
     restaurant = Restaurant.objects.raw('SELECT * FROM polls_restaurant WHERE id = %s', [userOrder.restaurantID])[0]
     restaurantName = restaurant.name
     restaurantLocation = restaurant.location
@@ -195,12 +200,9 @@ def getOrderInfo(userOrder):
     orderUrl = orderLocation.strip().replace(' ','+')
     orderId = userOrder.id
     foodItems = []
-    # SQL
-    # includeInstances = Include.objects.filter(orderID=orderId)
+
     includeInstances = Include.objects.raw('SELECT * FROM polls_include WHERE orderID = %s', [orderId])
     for includeInstance in includeInstances:
-        # SQL
-        # food = FoodItem.objects.get(pk=includeInstance.foodID)
         food = FoodItem.objects.raw('SELECT * FROM polls_fooditem WHERE id = %s', [includeInstance.foodID])[0]
         totalPrice = food.price*includeInstance.quantity
         foodItem = {'foodName':food.foodName, 'quantity':includeInstance.quantity, 'price': food.price, 'totalPrice': totalPrice}
@@ -226,28 +228,13 @@ def updateItem(request):
         # includeInstance = Include.objects.get(pk=int(request.POST['includeId']))
         includeInstance = Include.objects.raw('SELECT * FROM polls_include WHERE id = %s', [int(request.POST['includeId'])])[0]
         originalQuantity = includeInstance.quantity
-        # originalQuantity = includeInstance.quantity
-        # includeInstance.quantity=int(request.POST['quantity'])
-        # # SQL
-        # includeInstance.save()
+
         cursor.execute('UPDATE polls_include SET quantity = %s WHERE id = %s', [int(request.POST['quantity']), int(request.POST['includeId'])])
 
-        # SQL
-        # order = Order.objects.get(id=includeInstance.orderID)
-        # order = Order.objects.raw('SELECT * FROM polls_order WHERE id = $s', [includeInstance.orderID])[0]
-        # print(order)
-        # orderTotalCost = float(order.totalCost)
-        # SQL
         foodPrice = FoodItem.objects.raw('SELECT * FROM polls_fooditem WHERE id = %s', [includeInstance.foodID])[0].price
-        # foodPrice = FoodItem.objects.get(pk=includeInstance.foodID).price
-        # orderTotalCost -= float(foodPrice) * float(originalQuantity)
-        # orderTotalCost += float(foodPrice) * includeInstance.quantity
-        # order.totalCost = Decimal(orderTotalCost)
-        # # SQL
-        # order.save()
 
         costDeducted = float(foodPrice) * float(originalQuantity)
-        costAdded = float(foodPrice) * includeInstance.quantity
+        costAdded = float(foodPrice) * int(request.POST['quantity'])
         cursor.execute('UPDATE polls_order SET totalCost = totalCost - %s + %s WHERE id = %s', [costDeducted, costAdded, includeInstance.orderID])
 
         return HttpResponse("Successful update on Include instance: "+str(includeInstance.pk))
@@ -260,26 +247,14 @@ def deleteItem(request):
         return redirect('login')
     
     if request.method == "POST":
-        # SQL
-        includeInstance = Include.objects.raw('SELECT * FROM polls_include WHERE id = %s', [int(request.POST['includeId'])])[0]
-        originalQuantity = includeInstance.quantity
-        # SQL
-        # includeInstance.delete()
+        deleteOrderInfo = cursor.execute('SELECT polls_fooditem.price * polls_include.quantity, polls_include.orderID FROM polls_fooditem, polls_include WHERE '
+                             'polls_fooditem.id = polls_include.foodID AND polls_include.id = %s', [int(request.POST['includeId'])]).fetchall()
+
+        (costDeducted, orderId) = deleteOrderInfo[0]
+
         cursor.execute('DELETE FROM polls_include WHERE id = %s', [int(request.POST['includeId'])])
 
-        # SQL
-        # order = Order.objects.get(id=includeInstance.orderID)
-        # orderTotalCost = float(order.totalCost)
-        # # SQL
-        # foodPrice = FoodItem.objects.get(pk=includeInstance.foodID).price
-        foodPrice = FoodItem.objects.raw('SELECT * FROM polls_fooditem WHERE id = %s', [includeInstance.foodID])[0].price
-        # orderTotalCost -= float(foodPrice) * float(originalQuantity)
-        # order.totalCost = Decimal(orderTotalCost)
-        # # SQL
-        # order.save()
-
-        costDeducted = float(foodPrice) * float(originalQuantity)
-        cursor.execute('UPDATE polls_order SET totalCost = totalCost - %s WHERE id = %s', [costDeducted, includeInstance.orderID])
+        cursor.execute('UPDATE polls_order SET totalCost = totalCost - %s WHERE id = %s', [costDeducted, orderId])
 
         return HttpResponse("Successful deleted Include instance: "+str(request.POST['includeId']))
     else:
@@ -319,66 +294,54 @@ def orderDetails(request, orderId):
 def confirmOrder(request):
     orderId = request.session["orderId"]
     orderTotalCost = 0.00
+    cursor.execute('UPDATE polls_order SET totalCost = %s WHERE id = %s', [Decimal(orderTotalCost), orderId])
     for key in request.POST:
         if  key != "csrfmiddlewaretoken" and key != "orderLocation" and request.POST[key] != '0':
             # TODO: update food item quantity(same as in finishOrder) - clear
-            # SQL
-            includeInstance = Include.objects.get(id=key)
-            includeInstance.quantity = int(request.POST[key])
-            # includeInstance = Include.objects.raw('SELECT * FROM polls_include WHERE id = %s', [key])[0]
+            includeInstance = Include.objects.raw('SELECT * FROM polls_include WHERE id = %s', [key])[0]
             # originalQuantity = includeInstance.quantity
-            # SQL
-            includeInstance.save()
-            # cursor.execute('UPDATE polls_include SET quantity = %s WHERE id = %s', [int(request.POST[key]), key])
 
-            # SQL
-            order = Order.objects.get(id=orderId)
-            # SQL
-            foodPrice = FoodItem.objects.get(pk=includeInstance.foodID).price
-            orderTotalCost += float(foodPrice) * includeInstance.quantity
-            order.totalCost = Decimal(orderTotalCost)
-            # SQL
-            order.save()
-            # cursor.execute('UPDATE polls_order SET totalCost = totalCost - %s WHERE id = %s', [costDeducted, includeInstance.orderID])
+            cursor.execute('UPDATE polls_include SET quantity = %s WHERE id = %s', [int(request.POST[key]), key])
+
+            foodPrice = FoodItem.objects.raw('SELECT * FROM polls_fooditem WHERE id = %s', [includeInstance.foodID])[0].price
+
+            costAdded = float(foodPrice) * int(request.POST[key])
+            cursor.execute('UPDATE polls_order SET totalCost = totalCost + %s WHERE id = %s', [costAdded, orderId])
             
     if "orderLocation" in request.POST:
         request.session["orderLocation"] = request.POST["orderLocation"]
         print(request.POST["orderLocation"])
         # TODO: then update orderLocation in database with orderId - clear
-        # SQL
+        cursor.execute('UPDATE polls_order SET location = %s WHERE id = %s', [request.POST["orderLocation"], orderId])
         order = Order.objects.get(id=orderId)
-        order.location = request.POST["orderLocation"]
-        order.save()
     # TODO: shared order finding/updating process goes here - clear
     # we might also need to clean up expired unfulfilled shared orders and user orders here
 
     orderSaved = False
-    allSharedOrders = SharedOrder.objects.all()
+    allSharedOrders = SharedOrder.objects.raw('SELECT * FROM polls_sharedorder')
     selectedSharedOrder = None
     for curSharedOrder in allSharedOrders:
         if curSharedOrder.status == "unfulfilled":
             if (timezone.now() - curSharedOrder.time).total_seconds() > 3600.0:
-                curSharedOrder.status = "expired"
-                # SQL
-                curSharedOrder.save()
+                # curSharedOrder.status = "expired"
+                # # SQL
+                # curSharedOrder.save()
+                cursor.execute('UPDATE polls_sharedorder SET status = "expired" WHERE id = %s', [curSharedOrder.id])
             elif curSharedOrder.restaurantID == order.restaurantID and calculateDistance(curSharedOrder, order):
                 calculateMidPt(curSharedOrder, order)
 
                 selectedSharedOrder = curSharedOrder
-                order.sharedOrderID = curSharedOrder
-                # SQL
-                order.save()
+
+                cursor.execute('UPDATE polls_order SET sharedOrderID_id = %s WHERE id = %s', [curSharedOrder.id, order.id])
                 orderSaved = True
                 break
                 
     if not orderSaved:
-        # SQL
-        newSharedOrder = SharedOrder(time=timezone.now(), restaurantID=order.restaurantID, status="unfulfilled", pickupPoint=order.location)
-        newSharedOrder.save()
-        selectedSharedOrder = newSharedOrder
-        order.sharedOrderID = newSharedOrder
-        # SQL
-        order.save()
+        cursor.execute('INSERT INTO polls_sharedorder(time, restaurantID, status, pickupPoint) VALUES(%s, %s, "unfulfilled", %s)',[timezone.now(), order.restaurantID, order.location])
+
+        selectedSharedOrder = SharedOrder.objects.raw('SELECT * FROM polls_sharedorder WHERE id = %s', [cursor.lastrowid])[0]
+
+        cursor.execute('UPDATE polls_order SET sharedOrderID_id = %s WHERE id = %s', [selectedSharedOrder.id, order.id])
         orderSaved = True
 
     checkMinOrderFee(selectedSharedOrder)
@@ -407,9 +370,7 @@ def calculateMidPt(sharedOrder, newOrder):
     center = str(centerLat) + ", " + str(centerLong)
     centerLoc = geolocator.reverse(center)
 
-    sharedOrder.pickupPoint = centerLoc.address
-    # SQL
-    sharedOrder.save()
+    cursor.execute('UPDATE polls_sharedorder SET pickupPoint = %s WHERE id = %s', [centerLoc.address, sharedOrder.id])
 
 
 def calculateDistance(sharedOrder, newOrder):
@@ -426,24 +387,16 @@ def calculateDistance(sharedOrder, newOrder):
         return False
 
 def checkMinOrderFee(sharedOrder):
-    # SQL
-    restaurant = Restaurant.objects.get(pk=sharedOrder.restaurantID)
-    currentTotal = 0.00
-    # SQL
-    for order in sharedOrder.order_set.all():
-        currentTotal += float(order.totalCost)
+    restaurant = Restaurant.objects.raw('SELECT * FROM polls_restaurant WHERE id = %s', [sharedOrder.restaurantID])[0]
+    currentTotal = cursor.execute('SELECT SUM(totalCost) FROM polls_order GROUP BY sharedOrderID_id HAVING sharedOrderID_id = %s', [sharedOrder.id]).fetchall()[0][0]
     if currentTotal >= float(restaurant.minOrderFee):
-        sharedOrder.status = "fulfilled"
-        # SQL
-        sharedOrder.save()
+        cursor.execute('UPDATE polls_sharedorder SET status = "fulfilled" WHERE id = %s', [sharedOrder.id])
 
 def cancelOrder(request):
     orderId = request.session["orderId"]
-    # SQL
-    Order.objects.filter(id=orderId).delete()
+    cursor.execute('DELETE FROM polls_order WHERE id = %s', [orderId])
     # TODO: delete Include records of the food items in this order using orderId here - clear
-    # SQL
-    Include.objects.filter(orderID=orderId).delete()
+    cursor.execute('DELETE FROM polls_include WHERE orderID = %s', [orderId])
     return render(request, 'polls/index.html')
 
 
@@ -455,12 +408,9 @@ def updatePrefs(request):
         newPrefs = request.POST.getlist("updatedPrefs[]")
         # TODO: update the preference database - clear
         orderUserID = orderUser.id
-        # SQL
-        Preference.objects.filter(userID=orderUserID).delete()
+        cursor.execute('DELETE FROM polls_preference WHERE userID = %s', [orderUserID])
         for newPref in newPrefs:
-            preference = Preference(userID=orderUserID, cuisineName=newPref)
-            # SQL
-            preference.save()
+            cursor.execute('INSERT INTO polls_preference(userID, cuisineName) VALUES(%s, %s)', [orderUserID, newPref])
         return HttpResponse("Successful updated preferences")
     else:
         raise Http404
