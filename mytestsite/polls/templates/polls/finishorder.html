@@ -78,7 +78,8 @@ $(".updateBtn").click(function () {
 });
     
 $(".deleteBtn").click(function () {
-    var cell = $(this).closest('tr').find("input")
+    var row2Del = $(this).closest('tr')
+    var cell = row2Del.find("input")
     var row_id = "#row_"+cell.attr("name")
     $.ajax({
         type:"POST",
@@ -89,7 +90,7 @@ $(".deleteBtn").click(function () {
         },
         success: function(data){
             console.log(data)
-            $(row_id).hide();
+            row2Del.remove()
         }
     });
     return false;
